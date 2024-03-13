@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "533901991123",
+    "project_id": "budgeting-and-savings-app",
+    "storage_bucket": "budgeting-and-savings-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:533901991123:android:3a0079fb205ebfc38f4826",
+        "android_client_info": {
+          "package_name": "com.sajami.budgeting_saving_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFqQDywU8SuchKYcZI6T6KSNmbV6xPbWM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
