@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home_page.dart';
+import 'accounts_page.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -21,10 +21,11 @@ class RegistrationPageState extends State<RegistrationPage> {
         password: passwordController.text.trim(),
       );
       if (!mounted) return; // Check if the widget is still in the widget tree
-      // Navigate to home screen or show success message
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const HomePage()));
+
+      // Navigate to the AccountsPage
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const AccountsPage()));
     } on FirebaseAuthException catch (e) {
-      if (!mounted) return; // Check here as well because showing a snackbar is also context-dependent
+      if (!mounted) return; // Additional check for mounted
 
       String errorMessage = 'An error occurred. Please try again.';
       if (e.code == 'weak-password') {
