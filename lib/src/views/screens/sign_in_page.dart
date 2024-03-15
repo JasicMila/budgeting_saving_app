@@ -1,7 +1,7 @@
+import 'package:budgeting_saving_app/src/views/screens/main_screen.dart';
 import 'package:budgeting_saving_app/src/views/screens/registration_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home_page.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -23,7 +23,7 @@ class SignInPageState extends State<SignInPage> {
       );
       if (!mounted) return; // Check if the widget is still in the widget tree
       // Upon successful sign-in, navigate the user or show a success message
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const HomePage()));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const MainScreen()));
     } on FirebaseAuthException catch (e) {
       if (!mounted) return; // Check here as well because showing a snackbar is also context-dependent
       // Handle sign-in errors and provide feedback
@@ -32,8 +32,6 @@ class SignInPageState extends State<SignInPage> {
       // Handle any other errors
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
