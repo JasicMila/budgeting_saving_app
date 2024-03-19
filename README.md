@@ -50,9 +50,11 @@ The Personal Budgeting and Savings App is designed to help individuals manage th
 
 ## Future Enhancements
 
+- **Ensure that each category has a limit up to which you wish to spend in a certain timeframe (a month usually).
 - **Machine Learning Insights:** Implement machine learning algorithms to provide personalized spending insights and saving recommendations.
 - **Social Sharing:** Allow users to share their savings achievements or budgeting tips with friends or a community within the app.
 - **Multi-Currency Support:** Enable transactions in multiple currencies with real-time conversion rates for international users.
+  
 
 ## Conclusion
 
