@@ -1,21 +1,40 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Transaction {
   final String id;
-  final String accountId; // Link to an Account
-  final String categoryId; // Link to a Category
+  final String accountId;
   final double amount;
-  final String currency; // ISO currency code
+  final String type; // 'income' or 'expense'
+  final String category;
   final DateTime date;
-  final String type; // "income" or "expense"
 
   Transaction({
-    required this.id,
+    this.id = '',
     required this.accountId,
-    required this.categoryId,
     required this.amount,
-    required this.currency,
-    required this.date,
     required this.type,
+    required this.category,
+    required this.date,
   });
 
-// Optional: Conversion methods, etc.?
+  Map<String, dynamic> toMap() {
+    return {
+      'accountId': accountId,
+      'amount': amount,
+      'type': type,
+      'category': category,
+      'date': date,
+    };
+  }
+
+  static Transaction fromMap(Map<String, dynamic> map, String documentId) {
+    return Transaction(
+      id: documentId,
+      accountId: map['accountId'],
+      amount: map['amount'].toDouble(),
+      type: map['type'],
+      category: map['category'],
+      date: (map['date'] as Timestamp).toDate(),
+    );
+  }
 }
