@@ -1,7 +1,7 @@
 import 'package:budgeting_saving_app/src/views/screens/main_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'sign_in_page.dart'; // Import your sign-in page widget
+import 'sign_in_page.dart';
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});

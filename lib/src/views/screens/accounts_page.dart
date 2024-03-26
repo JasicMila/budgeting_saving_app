@@ -48,6 +48,31 @@ class AccountsPageState extends State<AccountsPage> {
                   context,
                   MaterialPageRoute(builder: (context) => AccountDetailsPage(account: account, isNew: false)),
                 ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AccountDetailsPage(account: account, isNew: false)),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () async {
+                        // Start async operation
+                        await FirebaseFirestore.instance.collection('accounts').doc(account.id).delete();
+
+                        // Check if the widget is still mounted before using context
+                        if (!mounted) return;
+
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Account deleted')));
+                      },
+                    ),
+
+                  ],
+                ),
               );
             },
           );
