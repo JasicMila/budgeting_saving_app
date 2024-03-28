@@ -1,6 +1,7 @@
+import 'package:budgeting_saving_app/src/views/screens/transactions_page.dart';
 import 'package:flutter/material.dart';
-import 'home_page.dart'; // Import your HomePage
-import 'accounts_page.dart'; // Make sure to create or update AccountsPage
+import 'home_page.dart';
+import 'accounts_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -12,9 +13,10 @@ class MainScreen extends StatefulWidget {
 class MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    AccountsPage(),
+  final List<Widget> _widgetOptions = <Widget>[
+    const HomePage(),
+    const AccountsPage(),
+    const TransactionsPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -35,16 +37,20 @@ class MainScreenState extends State<MainScreen> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.home_max_rounded),
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet),
+            icon: Icon(Icons.account_balance_wallet_rounded),
             label: 'Accounts',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.swap_horiz_rounded),
+            label: 'Transactions',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        selectedItemColor: Colors.purple[800],
         onTap: _onItemTapped,
       ),
     );
