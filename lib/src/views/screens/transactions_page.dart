@@ -47,7 +47,7 @@ class TransactionsPageState extends State<TransactionsPage> {
                   doc.data() as Map<String, dynamic>, doc.id);
 
               return ListTile(
-                title: Text("${transaction.category} - ${transaction.amount}"),
+                title: Text("${transaction.type}: ${transaction.category} - ${transaction.amount}"),
                 subtitle: Text(
                     "${DateFormat.yMd().format(transaction.date)} | Account: ${accountNames[transaction.accountId] ?? 'Unknown'}"),
                 onTap: () => navigateToTransactionForm(context, transaction),

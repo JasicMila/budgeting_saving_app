@@ -5,11 +5,26 @@ class Category {
   final String iconPath; // Optional: For custom icons
 
   Category({
-    required this.id,
+    this.id = '',
     required this.name,
     required this.type,
-    required this.iconPath,
+    this.iconPath = '',
   });
 
-// Optional: Conversion methods
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'type': type,
+      'iconPath': iconPath,
+    };
+  }
+
+  static Category fromMap(Map<String, dynamic> map, String documentId) {
+    return Category(
+      id: documentId,
+      name: map['name'],
+      type: map['type'],
+      iconPath: map['iconPath'] ?? '',
+    );
+  }
 }
