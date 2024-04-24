@@ -5,7 +5,9 @@ import '../../models/activity.dart';
 import '../../services/account_service.dart';
 import '../../models/account.dart';
 import '../../services/category_service.dart';
-import 'package:budgeting_saving_app/src/models/category.dart' as category_model;
+import 'package:budgeting_saving_app/src/models/category.dart'
+    as category_model;
+import 'package:budgeting_saving_app/src/utils/constants.dart';
 
 class ActivityDetailsPage extends StatefulWidget {
   final Activity? activity;
@@ -24,6 +26,7 @@ class ActivityDetailsPageState extends State<ActivityDetailsPage> {
   late DateTime _selectedDate;
   String _selectedType = 'expense'; // Default to 'expense'
   String? _selectedAccountId;
+  String _selectedCurrency = 'EUR';
   List<category_model.Category> _availableCategories = [];
   List<Account> _accounts = [];
 
@@ -37,11 +40,13 @@ class ActivityDetailsPageState extends State<ActivityDetailsPage> {
     _selectedDate = widget.activity?.date ?? DateTime.now();
     _selectedType = widget.activity?.type ?? 'expense';
     _selectedAccountId = widget.activity?.accountId;
+    _selectedCurrency = widget.activity?.currency ?? 'EUR';
     _loadInitialData();
   }
 
   void _loadInitialData() async {
-    final categoryService = Provider.of<CategoryService>(context, listen: false);
+    final categoryService =
+        Provider.of<CategoryService>(context, listen: false);
     final accountService = Provider.of<AccountService>(context, listen: false);
     await categoryService.fetchCategories(type: _selectedType);
     _accounts = accountService.accounts;
@@ -74,119 +79,144 @@ class ActivityDetailsPageState extends State<ActivityDetailsPage> {
         title: Text(widget.isNew ? 'New Activity' : 'Edit Activity'),
       ),
       body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Form(  // Wrap your input fields in a Form widget
-        key: _formKey,  // Connect the GlobalKey
-        child: Column(
-          children: <Widget>[
-            TextFormField(
-              controller: _amountController,
-              decoration: const InputDecoration(labelText: 'Amount'),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: (value) {
-                if (value == null || value.isEmpty || double.tryParse(value) == null) {
-                  return 'Please enter a valid number';
-                }
-                return null;
-              },
-            ),
-            DropdownButton<String>(
-              value: _selectedType,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _selectedType = newValue!;
-                  _loadInitialData(); // Reload categories when type changes
-                });
-              },
-              items: <String>['income', 'expense'].map((type) {
-                return DropdownMenuItem<String>(
-                  value: type,
-                  child: Text(type),
-                );
-              }).toList(),
-            ),
-            if (_accounts.isNotEmpty)
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          // Wrap your input fields in a Form widget
+          key: _formKey, // Connect the GlobalKey
+          child: Column(
+            children: <Widget>[
+              TextFormField(
+                controller: _amountController,
+                decoration: const InputDecoration(labelText: 'Amount'),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                validator: (value) {
+                  if (value == null ||
+                      value.isEmpty ||
+                      double.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  }
+                  return null;
+                },
+              ),
               DropdownButton<String>(
-                value: _selectedAccountId,
+                value: _selectedType,
                 onChanged: (String? newValue) {
                   setState(() {
-                    _selectedAccountId = newValue!;
+                    _selectedType = newValue!;
+                    _loadInitialData(); // Reload categories when type changes
                   });
                 },
-                items: _accounts.map((Account account) {
+                items: <String>['income', 'expense'].map((type) {
                   return DropdownMenuItem<String>(
-                    value: account.id,
-                    child: Text(account.name),
+                    value: type,
+                    child: Text(type),
                   );
                 }).toList(),
               ),
-            DropdownButton<String>(
-              value: _categoryController.text.isNotEmpty ? _categoryController.text : null,
-              onChanged: (String? newValue) {
-                setState(() {
-                  _categoryController.text = newValue!;
-                });
-              },
-              items: _availableCategories.map((category) {
-                return DropdownMenuItem<String>(
-                  value: category.name,
-                  child: Text(category.name),
-                );
-              }).toList(),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Picked Date: ${_selectedDate.toLocal().toString().split(' ')[0]}',
+              if (_accounts.isNotEmpty)
+                DropdownButton<String>(
+                  value: _selectedAccountId,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedAccountId = newValue!;
+                    });
+                  },
+                  items: _accounts.map((Account account) {
+                    return DropdownMenuItem<String>(
+                      value: account.id,
+                      child: Text(account.name),
+                    );
+                  }).toList(),
                 ),
-                TextButton(
-                  onPressed: _presentDatePicker,
-                  child: const Text(
-                    'Choose Date',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+              DropdownButton<String>(
+                value: _selectedCurrency,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedCurrency = newValue!;
+                  });
+                },
+                items: currencies.map((String currency) {
+                  return DropdownMenuItem<String>(
+                    value: currency,
+                    child: Text(currency),
+                  );
+                }).toList(),
+              ),
+              DropdownButton<String>(
+                value: _categoryController.text.isNotEmpty
+                    ? _categoryController.text
+                    : null,
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _categoryController.text = newValue!;
+                  });
+                },
+                items: _availableCategories.map((category) {
+                  return DropdownMenuItem<String>(
+                    value: category.name,
+                    child: Text(category.name),
+                  );
+                }).toList(),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Picked Date: ${_selectedDate.toLocal().toString().split(' ')[0]}',
                   ),
-                ),
-              ],
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _saveActivity();
-                }
-              },
-              child: Text(widget.isNew ? 'Create' : 'Update'),
-            ),
-          ],
+                  TextButton(
+                    onPressed: _presentDatePicker,
+                    child: const Text(
+                      'Choose Date',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _saveActivity();
+                  }
+                },
+                child: Text(widget.isNew ? 'Create' : 'Update'),
+              ),
+            ],
+          ),
         ),
       ),
-      ),
     );
   }
 
-  void _saveActivity() async {
-    final activityService = Provider.of<ActivityService>(context, listen: false);
-    final newActivity = Activity(
-      id: widget.activity?.id ?? '',
-      accountId: _selectedAccountId!,
-      amount: double.parse(_amountController.text),
-      type: _selectedType,
-      category: _categoryController.text,
-      date: _selectedDate,
-    );
+  Future<void> _saveActivity() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      final activityService =
+          Provider.of<ActivityService>(context, listen: false);
+      final newActivity = Activity(
+        id: widget.activity?.id ?? '',
+        accountId: _selectedAccountId!,
+        amount: double.parse(_amountController.text),
+        type: _selectedType,
+        category: _categoryController.text,
+        date: _selectedDate,
+        currency: _selectedCurrency,
+      );
 
-    if (widget.isNew) {
-      activityService.addActivity(newActivity);
-    } else {
-      activityService.updateActivity(newActivity);
+      if (widget.isNew) {
+        activityService.addActivity(newActivity);
+      } else {
+        activityService.updateActivity(newActivity);
+      }
+      Navigator.pop(context);
     }
-    Navigator.pop(context);
-  }
 
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _categoryController.dispose();
-    super.dispose();
+    @override
+    void dispose() {
+      _amountController.dispose();
+      _categoryController.dispose();
+      super.dispose();
+    }
   }
 }

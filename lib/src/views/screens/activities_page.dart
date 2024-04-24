@@ -33,7 +33,7 @@ class ActivitiesPage extends StatelessWidget {
             itemBuilder: (context, index) {
               Activity activity = activities[index];
               return ListTile(
-                title: Text('${activity.type} - ${activity.amount}'),
+                title: Text('${activity.type} - ${activity.amount} ${activity.currency}'),
                 subtitle: Text('${activity.category} on ${activity.date}'),
                 onTap: () => Navigator.push(
                   context,

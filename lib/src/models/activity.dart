@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Activity {
@@ -7,6 +8,7 @@ class Activity {
   final String type; // 'income' or 'expense'
   final String category;
   final DateTime date;
+  final String currency;
 
   Activity({
     this.id = '',
@@ -15,6 +17,7 @@ class Activity {
     required this.type,
     required this.category,
     required this.date,
+    this.currency = 'EUR',
   });
 
   Map<String, dynamic> toMap() {
@@ -23,7 +26,8 @@ class Activity {
       'amount': amount,
       'type': type,
       'category': category,
-      'date': date,
+      'date': date.toIso8601String(),
+      'currency': currency,
     };
   }
 
@@ -34,7 +38,8 @@ class Activity {
       amount: map['amount'].toDouble(),
       type: map['type'],
       category: map['category'],
-      date: (map['date'] as Timestamp).toDate(),
+      date: DateTime.parse(map['date']),
+      currency: map['currency'],
     );
   }
 }
