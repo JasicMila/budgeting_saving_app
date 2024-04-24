@@ -1,4 +1,4 @@
-import 'package:budgeting_saving_app/src/views/screens/transactions_page.dart';
+import 'package:budgeting_saving_app/src/views/screens/activities_page.dart';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'accounts_page.dart';
@@ -16,7 +16,7 @@ class MainScreenState extends State<MainScreen> {
   final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
     const AccountsPage(),
-    const TransactionsPage(),
+    const ActivitiesPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -46,7 +46,7 @@ class MainScreenState extends State<MainScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.swap_horiz_rounded),
-            label: 'Transactions',
+            label: 'Activities',
           ),
         ],
         currentIndex: _selectedIndex,

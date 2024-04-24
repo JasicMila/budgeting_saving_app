@@ -1,7 +1,7 @@
 class Account {
   final String id;
   final String name;
-  final String currency; // ISO currency code (e.g., USD, EUR)
+  final String? currency; // ISO currency code (e.g., USD, EUR)
   final double amount; // Current account balance
   final String userId; // Add this line
 

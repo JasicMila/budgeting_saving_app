@@ -1,8 +1,9 @@
-import 'package:budgeting_saving_app/src/views/screens/transactions_page.dart';
+import 'package:budgeting_saving_app/src/views/screens/activities_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:budgeting_saving_app/src/models/account.dart';
+import 'package:provider/provider.dart';
+import '../../services/account_service.dart';
 
 
 class AccountDetailsPage extends StatefulWidget {
@@ -20,14 +21,17 @@ class AccountDetailsPage extends StatefulWidget {
 }
 
 class AccountDetailsPageState extends State<AccountDetailsPage> {
-  final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
   late TextEditingController _amountController;
   String? _selectedCurrency = 'USD'; // Default or existing account currency
+  late AccountService _accountService; // Declare a variable for AccountService
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
 
   @override
   void initState() {
     super.initState();
+    _accountService = Provider.of<AccountService>(context, listen: false);  // Get AccountService from Provider
     _nameController = TextEditingController(text: widget.account?.name ?? '');
     _amountController =
         TextEditingController(text: widget.account?.amount.toString() ?? '');
@@ -42,27 +46,31 @@ class AccountDetailsPageState extends State<AccountDetailsPage> {
   }
 
   Future<void> _saveAccount() async {
-    if (!_formKey.currentState!.validate()) return;
-    final name = _nameController.text.trim();
-    final amount = double.tryParse(_amountController.text) ?? 0.0;
-    final Map<String, dynamic> accountData = {
-      'name': name,
-      'currency': _selectedCurrency,
-      'amount': amount,
-      'userId': FirebaseAuth.instance.currentUser?.uid,
-    };
-    // Add new account or update existing one
-    if (widget.isNew) {
-      await FirebaseFirestore.instance.collection('accounts').add(accountData);
-    } else {
-      await FirebaseFirestore.instance
-          .collection('accounts')
-          .doc(widget.account?.id)
-          .update(accountData);
+    try {
+      if (!_formKey.currentState!.validate()) return;
+      final name = _nameController.text.trim();
+      final amount = double.tryParse(_amountController.text) ?? 0.0;
+      final account = Account(
+        id: widget.account?.id ?? '', // Correct null-aware check
+        name: name,
+        currency: _selectedCurrency,
+        amount: amount,
+        userId: FirebaseAuth.instance.currentUser!.uid,
+      );
+
+      if (widget.isNew) {
+        await _accountService.addAccount(account);
+      } else {
+        await _accountService.updateAccount(account);
+      }
+      if (!mounted) return;
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Account saved successfully')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to save account: $e')));
     }
-    if (!mounted) return;
-    Navigator.pop(context);
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -95,15 +103,15 @@ class AccountDetailsPageState extends State<AccountDetailsPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  // Navigate to TransactionsPage
+                  // Navigate to ActivitiesPage
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const TransactionsPage(),
+                      builder: (context) => const ActivitiesPage(),
                     ),
                   );
                 },
-                child: const Text('Manage Transactions'),
+                child: const Text('Manage Activities'),
               ),
             ],
           ),

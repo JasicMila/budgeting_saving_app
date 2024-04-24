@@ -1,10 +1,14 @@
 
+import 'package:budgeting_saving_app/src/services/account_service.dart';
+import 'package:budgeting_saving_app/src/services/activity_service.dart';
+import 'package:budgeting_saving_app/src/services/category_service.dart';
 import 'package:budgeting_saving_app/src/views/screens/sign_in_page.dart';
 import 'package:budgeting_saving_app/src/views/screens/main_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,17 +32,24 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  // This widget is the root of the application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Budgeting & Savings App',
-      theme: ThemeData(
-
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AccountService()),
+        ChangeNotifierProvider(create: (_) => ActivityService()),
+        ChangeNotifierProvider(create: (_) => CategoryService()),
+        // Add other providers here as needed
+      ],
+      child: MaterialApp(
+        title: 'Budgeting & Savings App',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: const AuthWrapper(),
       ),
-      home: const AuthWrapper(),
     );
   }
 }

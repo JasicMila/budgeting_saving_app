@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Transaction {
+class Activity {
   final String id;
   final String accountId;
   final double amount;
@@ -8,7 +8,7 @@ class Transaction {
   final String category;
   final DateTime date;
 
-  Transaction({
+  Activity({
     this.id = '',
     required this.accountId,
     required this.amount,
@@ -27,8 +27,8 @@ class Transaction {
     };
   }
 
-  static Transaction fromMap(Map<String, dynamic> map, String documentId) {
-    return Transaction(
+  static Activity fromMap(Map<String, dynamic> map, String documentId) {
+    return Activity(
       id: documentId,
       accountId: map['accountId'],
       amount: map['amount'].toDouble(),

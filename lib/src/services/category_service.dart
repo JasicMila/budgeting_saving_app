@@ -1,12 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:budgeting_saving_app/src/models/category.dart';
+import 'package:budgeting_saving_app/src/models/category.dart' as category_model;
+import 'package:flutter/cupertino.dart';
 
-class CategoryService {
+class CategoryService with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  List<category_model.Category> _categories = [];
+
+  List<category_model.Category> get categories => _categories;
 
   // Fetch categories
-  Future<List<Category>> fetchCategories({String? type}) async {
+  Future<void> fetchCategories({String? type}) async {
     try {
       Query<Map<String, dynamic>> query = _firestore.collection('categories');
       if (type != null) {
@@ -14,20 +17,22 @@ class CategoryService {
       }
       final QuerySnapshot<Map<String, dynamic>> categorySnapshot = await query.get();
 
-      return categorySnapshot.docs
-          .map((doc) => Category.fromMap(doc.data()!, doc.id))
+      _categories = categorySnapshot.docs
+          .map((doc) => category_model.Category.fromMap(doc.data(), doc.id))
           .toList();
+      notifyListeners();
     } catch (e) {
       print("Error fetching categories: $e");
-      return [];
     }
   }
 
   // Add a new category
-  Future<void> addCategory(Category category) async {
+  Future<void> addCategory(category_model.Category category) async {
     try {
       print("Adding category: ${category.name}");
       await _firestore.collection('categories').add(category.toMap());
+      _categories.add(category);
+      notifyListeners();
       print("Category added successfully");
     } catch (e) {
       print("Error adding category: $e");
@@ -36,12 +41,29 @@ class CategoryService {
   }
 
   // Update an existing category
-  Future<void> updateCategory(Category category) async {
-    await _firestore.collection('categories').doc(category.id).update(category.toMap());
+  Future<void> updateCategory(category_model.Category category) async {
+    try {
+      print("Updating category: ${category.name}");
+      await _firestore.collection('categories').doc(category.id).update(category.toMap());
+      int index = _categories.indexWhere((c) => c.id == category.id);
+      if (index != -1) {
+        _categories[index] = category;
+        notifyListeners();
+      }
+      print("Category updated successfully");
+    } catch (e) {
+      print("Error updating category: $e");
+    }
   }
 
   // Delete a category
   Future<void> deleteCategory(String categoryId) async {
-    await _firestore.collection('categories').doc(categoryId).delete();
+    try {
+      await _firestore.collection('categories').doc(categoryId).delete();
+      _categories.removeWhere((c) => c.id == categoryId);
+      notifyListeners();
+    } catch (e) {
+      print("Error deleting category: $e");
+    }
   }
 }

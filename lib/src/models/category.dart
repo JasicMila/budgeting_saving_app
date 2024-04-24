@@ -13,6 +13,7 @@ class Category {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'name': name,
       'type': type,
       'iconPath': iconPath,
