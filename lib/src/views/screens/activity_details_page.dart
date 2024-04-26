@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/activity_service.dart';
@@ -197,6 +198,7 @@ class ActivityDetailsPageState extends State<ActivityDetailsPage> {
       final newActivity = Activity(
         id: widget.activity?.id ?? '',
         accountId: _selectedAccountId!,
+        userId: FirebaseAuth.instance.currentUser!.uid,
         amount: double.parse(_amountController.text),
         type: _selectedType,
         category: _categoryController.text,

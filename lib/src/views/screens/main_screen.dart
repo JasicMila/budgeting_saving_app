@@ -1,7 +1,9 @@
 import 'package:budgeting_saving_app/src/views/screens/activities_page.dart';
 import 'package:flutter/material.dart';
+import 'categories_page.dart';
 import 'home_page.dart';
 import 'accounts_page.dart';
+import 'activities_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,6 +19,7 @@ class MainScreenState extends State<MainScreen> {
     const HomePage(),
     const AccountsPage(),
     const ActivitiesPage(),
+    const CategoriesPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -47,6 +50,10 @@ class MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.swap_horiz_rounded),
             label: 'Activities',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.category),
+            label: 'Categories',
           ),
         ],
         currentIndex: _selectedIndex,

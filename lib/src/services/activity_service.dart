@@ -27,6 +27,7 @@ class ActivityService with ChangeNotifier {
       _activities = activitySnapshot.docs
           .map((doc) => Activity.fromMap(doc.data() as Map<String, dynamic>, doc.id))
           .toList();
+      print(_activities);
       notifyListeners();  // Notify widgets of state change
     } catch (e) {
       // Handle exceptions by logging or re-throwing

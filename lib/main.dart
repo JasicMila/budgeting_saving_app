@@ -47,6 +47,11 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
+          bottomNavigationBarTheme: BottomNavigationBarThemeData(
+            selectedItemColor: Colors.purple[800],
+            unselectedItemColor: Colors.grey[600],
+            backgroundColor: Colors.white,
+          ),
         ),
         home: const AuthWrapper(),
       ),
