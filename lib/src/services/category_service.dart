@@ -1,21 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:budgeting_saving_app/src/models/category.dart' as category_model;
+import 'package:budgeting_saving_app/src/models/category.dart'
+    as category_model;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
 class CategoryService with ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<category_model.Category> _categories = [];
 
+  CategoryService() {
+    fetchCategories();
+  }
+
   List<category_model.Category> get categories => _categories;
 
   // Fetch categories
   Future<void> fetchCategories({String? type}) async {
     try {
-      Query<Map<String, dynamic>> query = _firestore.collection('categories');
+      Query<Map<String, dynamic>> query = _firestore
+          .collection('categories')
+          .where('userId', isEqualTo: FirebaseAuth.instance.currentUser?.uid);
       if (type != null) {
         query = query.where('type', isEqualTo: type);
       }
-      final QuerySnapshot<Map<String, dynamic>> categorySnapshot = await query.get();
+      final QuerySnapshot<Map<String, dynamic>> categorySnapshot =
+          await query.get();
 
       _categories = categorySnapshot.docs
           .map((doc) => category_model.Category.fromMap(doc.data(), doc.id))
@@ -43,8 +52,14 @@ class CategoryService with ChangeNotifier {
   // Update an existing category
   Future<void> updateCategory(category_model.Category category) async {
     try {
+      if (category.id.isEmpty) {
+        throw Exception("Category ID cannot be empty");
+      }
       print("Updating category: ${category.name}");
-      await _firestore.collection('categories').doc(category.id).update(category.toMap());
+      await _firestore
+          .collection('categories')
+          .doc(category.id)
+          .update(category.toMap());
       int index = _categories.indexWhere((c) => c.id == category.id);
       if (index != -1) {
         _categories[index] = category;

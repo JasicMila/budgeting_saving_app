@@ -23,7 +23,7 @@ class AccountDetailsPage extends StatefulWidget {
 class AccountDetailsPageState extends State<AccountDetailsPage> {
   late TextEditingController _nameController;
   late TextEditingController _amountController;
-  String? _selectedCurrency = 'USD'; // Default or existing account currency
+  String? _selectedCurrency = 'EUR'; // Default or existing account currency
   late AccountService _accountService; // Declare a variable for AccountService
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -35,7 +35,7 @@ class AccountDetailsPageState extends State<AccountDetailsPage> {
     _nameController = TextEditingController(text: widget.account?.name ?? '');
     _amountController =
         TextEditingController(text: widget.account?.amount.toString() ?? '');
-    _selectedCurrency = widget.account?.currency ?? 'USD';
+    _selectedCurrency = widget.account?.currency ?? 'EUR';
   }
 
   @override

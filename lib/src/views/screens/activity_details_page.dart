@@ -6,8 +6,7 @@ import '../../models/activity.dart';
 import '../../services/account_service.dart';
 import '../../models/account.dart';
 import '../../services/category_service.dart';
-import 'package:budgeting_saving_app/src/models/category.dart'
-    as category_model;
+import 'package:budgeting_saving_app/src/models/category.dart' as category_model;
 import 'package:budgeting_saving_app/src/utils/constants.dart';
 
 class ActivityDetailsPage extends StatefulWidget {
@@ -75,6 +74,8 @@ class ActivityDetailsPageState extends State<ActivityDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final categoryService = Provider.of<CategoryService>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.isNew ? 'New Activity' : 'Edit Activity'),
@@ -100,6 +101,7 @@ class ActivityDetailsPageState extends State<ActivityDetailsPage> {
                   return null;
                 },
               ),
+
               DropdownButton<String>(
                 value: _selectedType,
                 onChanged: (String? newValue) {
@@ -153,12 +155,14 @@ class ActivityDetailsPageState extends State<ActivityDetailsPage> {
                     _categoryController.text = newValue!;
                   });
                 },
-                items: _availableCategories.map((category) {
+                items: _availableCategories.isNotEmpty
+                ? _availableCategories.map((category) {
                   return DropdownMenuItem<String>(
                     value: category.name,
                     child: Text(category.name),
                   );
-                }).toList(),
+                }).toList() :
+                [const DropdownMenuItem(child: Text("No Categories Available"))],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
