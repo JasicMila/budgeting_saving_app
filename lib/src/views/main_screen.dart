@@ -1,9 +1,7 @@
-import 'package:budgeting_saving_app/src/views/screens/activities_page.dart';
+import 'package:budgeting_saving_app/src/views/activities_page.dart';
 import 'package:flutter/material.dart';
-import 'categories_page.dart';
 import 'home_page.dart';
 import 'accounts_page.dart';
-import 'activities_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -14,17 +12,26 @@ class MainScreen extends StatefulWidget {
 
 class MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+  String _selectedAccountId = ''; // State variable to hold the selected account ID
+
 
   final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
     const AccountsPage(),
-    const ActivitiesPage(),
-    const CategoriesPage(),
+    const SizedBox(), // Placeholder for ActivitiesPage
   ];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+    });
+  }
+
+  // Method to select an account and navigate to ActivitiesPage
+  void selectAccountAndNavigate(String accountId) {
+    setState(() {
+      _selectedAccountId = accountId;
+      _selectedIndex = 2; // Navigate to Activities tab
     });
   }
 
@@ -35,7 +42,9 @@ class MainScreenState extends State<MainScreen> {
         title: const Text('My Budgeting App'),
       ),
       body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+        child: _selectedIndex == 2
+            ? ActivitiesPage(accountId: _selectedAccountId)
+            : _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -50,10 +59,6 @@ class MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.swap_horiz_rounded),
             label: 'Activities',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: 'Categories',
           ),
         ],
         currentIndex: _selectedIndex,

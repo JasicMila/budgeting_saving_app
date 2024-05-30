@@ -1,49 +1,52 @@
+import 'package:budgeting_saving_app/src/utils/constants.dart';
+import 'package:budgeting_saving_app/src/utils/mappable.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-class Activity {
+class Activity implements Mappable {
   final String id;
-  final String userId;
   final String accountId;
-  final double amount;
-  final String type; // 'income' or 'expense'
-  final String category;
   final DateTime date;
+  final ActivityType type; // enum 'income' or 'expense'
+  final String category;
+  final double amount;
   final String currency;
+  final String creatorId; // ID of the user who created the activity
 
   Activity({
-    this.id = '',
+    required this.id,
     required this.accountId,
-    required this.userId,
-    required this.amount,
+    required this.date,
     required this.type,
     required this.category,
-    required this.date,
-    this.currency = 'EUR',
+    required this.amount,
+    required this.currency,
+    required this.creatorId,
   });
 
+  // Serialization
+  factory Activity.fromMap(Map<String, dynamic> map, String id) {
+    return Activity(
+      id: id,
+      accountId: map['accountId'],
+      date: DateTime.parse(map['date']),
+      type: ActivityType.values.firstWhere((e) => e.toString().split('.').last == map['type']),
+      category: map['category'],
+      amount: map['amount'].toDouble(),
+      currency: map['currency'],
+      creatorId: map['creatorId'],
+    );
+  }
+
+  // Deserialization
+  @override
   Map<String, dynamic> toMap() {
     return {
       'accountId': accountId,
-      'userId': userId,
-      'amount': amount,
-      'type': type,
-      'category': category,
       'date': date.toIso8601String(),
+      'type': type.toString().split('.').last, // Converting enum to string for storage
+      'category': category,
+      'amount': amount,
       'currency': currency,
+      'creatorId': creatorId,
     };
-  }
-
-  static Activity fromMap(Map<String, dynamic> map, String documentId) {
-    return Activity(
-      id: documentId,
-      userId: map['userId'],
-      accountId: map['accountId'],
-      amount: map['amount'].toDouble(),
-      type: map['type'],
-      category: map['category'],
-      date: DateTime.parse(map['date']),
-      currency: map['currency'],
-    );
   }
 }

@@ -1,41 +1,46 @@
-class Account {
+import 'package:budgeting_saving_app/src/utils/mappable.dart';
+
+class Account implements Mappable {
   final String id;
   final String name;
-  final String? currency; // ISO currency code (e.g., USD, EUR)
-  final double amount; // Current account balance
-  final String userId; // Add this line
-
-
+  final String currency;
+  late final double balance;
+  final String creatorId;
+  final List<String> userIds; // IDs of users who can access this account
 
   Account({
-    this.id = '',
+    required this.id,
     required this.name,
     required this.currency,
-    required this.amount,
-    this.userId = '',
+    required this.balance,
+    required this.creatorId,
+    required this.userIds
   });
 
-
-  // Method to convert Account to a map
-  Map<String, dynamic> toMap() {
-    return {
-      'name': name,
-      'currency': currency,
-      'amount': amount,
-      'userId': userId,
-    };
-  }
-
-  // Method to create an Account from a map
-  static Account fromMap(Map<String, dynamic> map, String documentId) {
+  // Serialization
+  factory Account.fromMap(Map<String, dynamic> map, String id) {
     return Account(
-      id: documentId,
+      id: id,
       name: map['name'],
       currency: map['currency'],
-      amount: map['amount']?.toDouble() ?? 0.0,
-      userId: map['userId'],
+      balance: map['balance'].toDouble(),
+      creatorId: map['creatorId'],
+      userIds: List<String>.from(map['userIds']),
     );
+  }
+
+  // Deserialization
+  @override
+  Map<String, dynamic> toMap() {
+    final map = {
+      'name': name,
+      'currency': currency,
+      'balance': balance,
+      'creatorId': creatorId,
+      'userIds': userIds,
+    };
+    print("Account toMap: $map");
+    return map;
   }
 }
 
-// Conversion methods?
