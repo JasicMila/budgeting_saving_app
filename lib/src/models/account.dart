@@ -17,6 +17,24 @@ class Account implements Mappable {
     required this.userIds
   });
 
+  Account copyWith({
+    String? id,
+    String? name,
+    String? currency,
+    double? balance,
+    String? creatorId,
+    List<String>? userIds,
+  }) {
+    return Account(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      currency: currency ?? this.currency,
+      balance: balance ?? this.balance,
+      creatorId: creatorId ?? this.creatorId,
+      userIds: userIds ?? this.userIds,
+    );
+  }
+
   // Serialization
   factory Account.fromMap(Map<String, dynamic> map, String id) {
     return Account(
@@ -32,15 +50,13 @@ class Account implements Mappable {
   // Deserialization
   @override
   Map<String, dynamic> toMap() {
-    final map = {
+    return {
       'name': name,
       'currency': currency,
       'balance': balance,
       'creatorId': creatorId,
       'userIds': userIds,
     };
-    print("Account toMap: $map");
-    return map;
   }
 }
 

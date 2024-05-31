@@ -25,10 +25,6 @@ class AccountNotifier extends StateNotifier<List<Account>> {
   }
 
   Future<void> addAccount(Account account) async {
-    if (account.id.isEmpty) {
-      print("Account ID is empty");
-      return;
-    }
     try {
       print("Adding account: ${account.toMap()}");
       await _firestoreService.create(account.toMap(), account.id);

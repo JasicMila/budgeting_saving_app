@@ -3,12 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/activity.dart';
 import 'package:budgeting_saving_app/src/providers/account_provider.dart';
 import 'package:budgeting_saving_app/src/providers/activity_provider.dart';
+import '../utils/constants.dart';
 import 'activity_details_page.dart';
-
+import 'package:intl/intl.dart';
 
 class ActivitiesPage extends ConsumerStatefulWidget {
   final String accountId;
-
   const ActivitiesPage({super.key, required this.accountId});
 
   @override
@@ -33,8 +33,9 @@ class ActivitiesPageState extends ConsumerState<ActivitiesPage> {
 
     final filteredActivities = selectedAccountId == null
         ? activities
-        : activities.where((activity) => activity.accountId == selectedAccountId).toList();
-
+        : activities
+            .where((activity) => activity.accountId == selectedAccountId)
+            .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -44,66 +45,82 @@ class ActivitiesPageState extends ConsumerState<ActivitiesPage> {
             icon: const Icon(Icons.add),
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ActivityDetailsPage(isNew: true, accountId: selectedAccountId ?? '')),
+              MaterialPageRoute(
+                  builder: (context) => ActivityDetailsPage(
+                      isNew: true, accountId: selectedAccountId ?? '')),
             ),
           ),
         ],
       ),
       body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: DropdownButtonFormField<String>(
-                value: selectedAccountId,
-                hint: const Text('Select Account'),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedAccountId = newValue;
-                    ref.read(activityNotifierProvider.notifier).fetchActivities(newValue);
-                  });
-                },
-                items: [
-                  const DropdownMenuItem<String>(
-                    value: null,
-                    child: Text('All Accounts'),
-                  ),
-                  ...accounts.map((account) {
-                    return DropdownMenuItem<String>(
-                      value: account.id,
-                      child: Text(account.name),
-                    );
-                  }).toList(),
-                ],
-              ),
-          ),
-            Expanded(
-              child: filteredActivities.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                itemCount: filteredActivities.length,
-                itemBuilder: (context, index) {
-                  final Activity activity = filteredActivities[index];
-                  return ListTile(
-                    title: Text('${activity.type} - ${activity.amount} ${activity.currency}'),
-                    subtitle: Text('${activity.category} on ${activity.date.toIso8601String()}'),
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => ActivityDetailsPage(
-                              activity: activity, isNew: false, accountId: activity.accountId)),
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () {
-                        ref.read(activityNotifierProvider.notifier).removeActivity(activity.id);
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Activity deleted')));
-                      },
-                    ),
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButtonFormField<String>(
+              value: selectedAccountId,
+              hint: const Text('Select Account'),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedAccountId = newValue;
+                  ref
+                      .read(activityNotifierProvider.notifier)
+                      .fetchActivities(newValue);
+                });
+              },
+              items: [
+                const DropdownMenuItem<String>(
+                  value: null,
+                  child: Text('All Accounts'),
+                ),
+                ...accounts.map((account) {
+                  return DropdownMenuItem<String>(
+                    value: account.id,
+                    child: Text(account.name),
                   );
-                },
-              ),
+                }).toList(),
+              ],
             ),
-          ],
+          ),
+          Expanded(
+            child: filteredActivities.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: filteredActivities.length,
+                    itemBuilder: (context, index) {
+                      final Activity activity = filteredActivities[index];
+                      // Format the type and date/time
+                      final type = activity.type == ActivityType.income ? 'Income' : 'Expense';
+                      final formattedDate = DateFormat('yyyy-MM-dd').format(activity.date);
+                      final formattedTime = DateFormat('HH:mm').format(activity.date);
+                      return ListTile(
+                        title: Text(
+                            '${activity.category} ($type) - ${activity.amount} ${activity.currency}'),
+                        subtitle: Text(
+                            '$formattedDate at $formattedTime'),
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ActivityDetailsPage(
+                                  activity: activity,
+                                  isNew: false,
+                                  accountId: activity.accountId)),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () {
+                            ref
+                                .read(activityNotifierProvider.notifier)
+                                .removeActivity(activity.id);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Activity deleted')));
+                          },
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
       ),
     );
   }
