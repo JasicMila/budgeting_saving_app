@@ -111,9 +111,9 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
 
               DropdownButtonFormField<String>(
                 value: categories.isNotEmpty && selectedCategory != null
-                    ? categories.firstWhere(
+                    ? filteredCategories.firstWhere(
                         (category) => category.name == selectedCategory,
-                    orElse: () => categories.first)
+                    orElse: () => filteredCategories.first)
                     .name
                     : null,
                 decoration: const InputDecoration(labelText: 'Category'),
@@ -123,7 +123,7 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                     selectedCategory = newValue;
                   });
                 },
-                items: categories.map<DropdownMenuItem<String>>((Category category) {
+                items: filteredCategories.map<DropdownMenuItem<String>>((Category category) {
                   return DropdownMenuItem<String>(
                     value: category.name,
                     child: Text(category.name),
