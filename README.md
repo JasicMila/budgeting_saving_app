@@ -22,18 +22,18 @@ The Personal Budgeting and Savings App is designed to help individuals manage th
 
 ### 2. Accounts Management
 - Users can create and manage multiple financial accounts (e.g., cash, savings, credit card).
-- Each account displays its current balance, which updates in real-time based on the transactions recorded.
+- Each account displays its current balance, which updates in real-time based on the activities recorded.
 
 ### 3. Transactions Management
-- Users can record income and expense transactions under their accounts.
-- Each transaction requires an amount, category, and the associated account. Users can also add a description or notes.
+- Users can record income and expense activities under their accounts.
+- Each activity requires an amount, category, and the associated account.
 
 ### 4. Categories Management
 - The app provides standard categories for income (e.g., salary, dividends) and expenses (e.g., food, transportation, utilities).
 - Users have the flexibility to create custom categories for more personalized financial tracking.
 
 ### 5. Real-Time Financial Overview
-- Provides a dashboard view displaying key financial metrics, such as total income, expenses, and net savings for selected periods.
+- Provides a dashboard view displaying key financial metrics, such as total income, expenses.
 - Visual representations (graphs and charts) offer insights into spending habits and budget allocations.
 
 ## Additional Features
