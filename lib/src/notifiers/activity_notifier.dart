@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/activity.dart';
 import '../providers/firestore_service_provider.dart';
 import '../services/firestore_service.dart';
-import '../models/account.dart';
 import '../providers/account_provider.dart';
 import '../utils/constants.dart';
 

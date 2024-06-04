@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/account.dart';
 import '../models/category.dart';
+import '../models/activity.dart';
 import '../providers/firestore_service_provider.dart';
 import '../services/firestore_service.dart';
 import '../utils/default_categories.dart';
@@ -10,6 +11,7 @@ class AccountNotifier extends StateNotifier<List<Account>> {
   final Ref ref;
   FirestoreService<Account> get _firestoreService => ref.read(firestoreAccountServiceProvider);
   FirestoreService<Category> get _categoryService => ref.read(firestoreCategoryServiceProvider);
+  FirestoreService<Activity> get _activityService => ref.read(firestoreActivityServiceProvider);
 
   AccountNotifier(this.ref) : super([]) {
     fetchAccounts();
@@ -49,6 +51,15 @@ class AccountNotifier extends StateNotifier<List<Account>> {
 
   Future<void> removeAccount(String accountId) async {
     try {
+      // Fetch and delete all activities related to the account
+      var activities = await _activityService.fetchAll();
+      for (var activity in activities) {
+        if (activity.accountId == accountId) {
+          await _activityService.delete(activity.id);
+        }
+      }
+
+      // Delete the account
       await _firestoreService.delete(accountId);
       state = state.where((account) => account.id != accountId).toList();
     } catch (e) {
