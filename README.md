@@ -24,7 +24,7 @@ The Personal Budgeting and Savings App is designed to help individuals manage th
 - Users can create and manage multiple financial accounts (e.g., cash, savings, credit card).
 - Each account displays its current balance, which updates in real-time based on the activities recorded.
 
-### 3. Transactions Management
+### 3. Activities Management
 - Users can record income and expense activities under their accounts.
 - Each activity requires an amount, category, and the associated account.
 
@@ -53,7 +53,7 @@ The Personal Budgeting and Savings App is designed to help individuals manage th
 - **Ensure that each category has a limit up to which you wish to spend in a certain timeframe (a month usually).
 - **Machine Learning Insights:** Implement machine learning algorithms to provide personalized spending insights and saving recommendations.
 - **Social Sharing:** Allow users to share their savings achievements or budgeting tips with friends or a community within the app.
-- **Multi-Currency Support:** Enable transactions in multiple currencies with real-time conversion rates for international users.
+- **Multi-Currency Support:** Enable activities in multiple currencies with real-time conversion rates for international users.
   
 
 ## Conclusion
