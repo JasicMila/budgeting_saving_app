@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_service_provider.dart';
-
+import '../views/widgets/elevated_button.dart';
+import '../views/widgets/text_form_field.dart';
+import '../providers/providers.dart';
+import 'registration_page.dart';
 
 class SignInPage extends ConsumerWidget {
   const SignInPage({super.key});
@@ -33,9 +35,9 @@ class SignInPage extends ConsumerWidget {
                   return null;
                 },
               ),
-              TextFormField(
+              CustomTextFormField(
                 controller: passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
+                labelText: 'Password',
                 obscureText: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -44,7 +46,7 @@ class SignInPage extends ConsumerWidget {
                   return null;
                 },
               ),
-              ElevatedButton(
+              CustomElevatedButton(
                 onPressed: () {
                   if (formKey.currentState!.validate()) {
                     ref.read(authServiceProvider).signIn(
@@ -53,7 +55,18 @@ class SignInPage extends ConsumerWidget {
                     );
                   }
                 },
-                child: const Text('Sign In'),
+                text: 'Sign In',
+              ),
+
+              TextButton(
+                onPressed: () {
+                  // Navigate to the registration page
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const RegistrationPage()),
+                  );
+                },
+                child: const Text('Register'),
               ),
             ],
           ),
