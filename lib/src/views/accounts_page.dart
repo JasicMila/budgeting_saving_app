@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/account_provider.dart';
+import 'package:budgeting_saving_app/src/providers/providers.dart';
 import 'account_details_page.dart';
 import '../models/account.dart';
 
