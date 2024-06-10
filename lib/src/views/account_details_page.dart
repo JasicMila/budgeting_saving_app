@@ -1,11 +1,14 @@
-import 'package:budgeting_saving_app/src/views/activities_page.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:budgeting_saving_app/src/models/account.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/account_provider.dart';
+import 'package:budgeting_saving_app/src/providers/providers.dart';
 import '../utils/constants.dart';
-import 'main_screen.dart';
+import 'activity_details_page.dart';
+import 'widgets/text_form_field.dart';
+import 'widgets/dropdown_form_field.dart';
+import 'widgets/elevated_button.dart';
 
 class AccountDetailsPage extends ConsumerWidget {
   final Account? account;
@@ -66,17 +69,17 @@ class AccountDetailsPage extends ConsumerWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              TextFormField(
+              CustomTextFormField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'Account Name'),
+                labelText: 'Account Name',
                 validator: (value) =>
                 value!.isEmpty
                     ? 'Please enter an account name'
                     : null,
               ),
-              TextFormField(
+              CustomTextFormField(
                 controller: balanceController,
-                decoration: const InputDecoration(labelText: 'Initial Balance'),
+                labelText: 'Initial Balance',
                 keyboardType: const TextInputType.numberWithOptions(
                     decimal: true),
                 validator: (value) =>
@@ -84,9 +87,9 @@ class AccountDetailsPage extends ConsumerWidget {
                     ? 'Please enter an amount'
                     : null,
               ),
-              DropdownButtonFormField<String>(
+              CustomDropdownFormField<String>(
                 value: selectedCurrency,
-                decoration: const InputDecoration(labelText: 'Currency'),
+                labelText: 'Currency',
                 onChanged: (String? newValue) {
                   selectedCurrency = newValue ?? 'EUR';
                 },
@@ -95,17 +98,25 @@ class AccountDetailsPage extends ConsumerWidget {
                   child: Text(currency),
                 )).toList(),
               ),
-              ElevatedButton(
+              CustomElevatedButton(
                 onPressed: saveAccount,
-                child: Text(isNew ? 'Create' : 'Update'),
+                text: isNew ? 'Create' : 'Update',
               ),
               if (!isNew) ...[
-                ElevatedButton(
+                CustomElevatedButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
-                    (context.findAncestorStateOfType<MainScreenState>())?.selectAccountAndNavigate(account!.id);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ActivityDetailsPage(
+                          activity: null, // Assuming it's a new activity
+                          isNew: true, // Set to true since it's a new activity
+                          accountId: account!.id,
+                        ),
+                      ),
+                    );
                   },
-                  child: const Text('Manage Activities'),
+                  text: 'Manage Activities',
                 ),
               ],
             ],
