@@ -17,16 +17,20 @@ class AccountNotifier extends StateNotifier<List<Account>> {
     fetchAccounts();
   }
 
-  Future<void> fetchAccounts() async {
+  Future<List<Account>> fetchAccounts() async {
     try {
-
       final user = ref.read(authServiceProvider).currentUser;
-      if (user == null) return;
+      if (user == null) {
+        state = [];
+        return [];
+      }
 
       var accounts = await _firestoreService.fetchAll(user.uid);
       state = accounts;
+      return accounts;
     } catch (e) {
       print("Error fetching accounts: $e");
+      return [];
     }
   }
 
@@ -51,7 +55,7 @@ class AccountNotifier extends StateNotifier<List<Account>> {
         await _categoryService.create(newCategory.toMap(), newCategory.id, user.uid);
       }
 
-      state = [...state, account];
+      state = [...state, newAccount];
     } catch (e) {
       print("Failed to add account: $e");
     }
@@ -86,6 +90,10 @@ class AccountNotifier extends StateNotifier<List<Account>> {
     } catch (e) {
       print("Error updating account: $e");
     }
+  }
+
+  void clearAccounts() {
+    state = [];
   }
 }
 

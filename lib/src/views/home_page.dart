@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:budgeting_saving_app/src/auth/auth_wrapper.dart';
+
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -14,6 +16,9 @@ class HomePage extends StatelessWidget {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const AuthWrapper()),
+              );
             },
           ),
         ],

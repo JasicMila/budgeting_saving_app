@@ -16,12 +16,22 @@ class ActivityNotifier extends StateNotifier<List<Activity>> {
   Future<void> fetchActivities([String? accountId]) async {
     try {
       final user = ref.read(authServiceProvider).currentUser;
-      if (user == null) return;
+      if (user == null) {
+        state = [];
+        return;
+      }
 
       var activities = await _firestoreService.fetchAll(user.uid);
       // If accountId is provided, filter activities by that accountId.
       if (accountId != null && accountId.isNotEmpty) {
         activities = activities.where((activity) => activity.accountId == accountId).toList();
+      }else {
+        // Fetch all accessible accounts for the user
+        var accounts = await ref.read(accountNotifierProvider.notifier).fetchAccounts();
+        var userAccountIds = accounts.map((account) => account.id).toList();
+
+        // Filter activities by accessible accounts
+        activities = activities.where((activity) => userAccountIds.contains(activity.accountId)).toList();
       }
       state = activities;
     } catch (e) {
@@ -35,10 +45,9 @@ class ActivityNotifier extends StateNotifier<List<Activity>> {
       if (user == null) return;
 
       final newActivity = activity.copyWith(creatorId: user.uid);
-
       await _firestoreService.create(newActivity.toMap(), newActivity.id, user.uid);
-      await _updateAccountBalance(newActivity.accountId, newActivity.amount, activity.type);
-      state = [...state, activity];
+      await _updateAccountBalance(newActivity.accountId, newActivity.amount, newActivity.type);
+      state = [...state, newActivity];
     } catch (e) {
       print("Error adding activity: $e");
     }
@@ -77,5 +86,9 @@ class ActivityNotifier extends StateNotifier<List<Activity>> {
 
     final updatedAccount = account.copyWith(balance: updatedBalance);
     await accountNotifier.updateAccount(updatedAccount);
+  }
+
+  void clearActivities() {
+    state = [];
   }
 }
