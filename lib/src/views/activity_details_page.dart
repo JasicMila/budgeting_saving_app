@@ -5,11 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/activity.dart';
 import '../models/account.dart';
 import '../models/category.dart';
-import '../providers/activity_provider.dart';
-import '../providers/account_provider.dart';
-import '../providers/category_provider.dart';
+import 'package:budgeting_saving_app/src/providers/providers.dart';
 import 'package:budgeting_saving_app/src/utils/constants.dart';
 import 'package:intl/intl.dart';
+import 'widgets/text_form_field.dart';
+import 'widgets/dropdown_form_field.dart';
+import 'widgets/elevated_button.dart';
 
 class ActivityDetailsPage extends ConsumerStatefulWidget {
   final Activity? activity;
@@ -75,9 +76,9 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
           child: ListView(
             children: [
 
-              DropdownButtonFormField<String>(
+              CustomDropdownFormField<String>(
                 value: selectedAccountId.isNotEmpty ? selectedAccountId : null,
-                decoration: const InputDecoration(labelText: 'Account'),
+                labelText: 'Account',
                 onChanged: (String? newValue) {
                   setState(() {
                     selectedAccountId = newValue!;
@@ -92,9 +93,9 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                 validator: (value) => value == null ? 'Please select an account' : null,
               ),
 
-              DropdownButtonFormField<ActivityType>(
+              CustomDropdownFormField<ActivityType>(
                 value: selectedType,
-                decoration: const InputDecoration(labelText: 'Type'),
+                labelText: 'Type',
                 onChanged: (ActivityType? newValue) {
                   setState(() {
                     selectedType = newValue!;
@@ -109,14 +110,14 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                 }).toList(),
               ),
 
-              DropdownButtonFormField<String>(
+              CustomDropdownFormField<String>(
                 value: categories.isNotEmpty && selectedCategory != null
                     ? filteredCategories.firstWhere(
                         (category) => category.name == selectedCategory,
                     orElse: () => filteredCategories.first)
                     .name
                     : null,
-                decoration: const InputDecoration(labelText: 'Category'),
+                labelText: 'Category',
                 onChanged: (String? newValue) {
                   setState(() {
                     categoryController.text = newValue!;
@@ -132,16 +133,16 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                 validator: (value) => value == null ? 'Please select a category' : null,
               ),
 
-              TextFormField(
+              CustomTextFormField(
                 controller: amountController,
-                decoration: const InputDecoration(labelText: 'Amount'),
+                labelText: 'Amount',
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 validator: (value) => value == null || value.isEmpty ? 'Please enter a valid amount' : null,
               ),
 
-              DropdownButtonFormField<String>(
+              CustomDropdownFormField<String>(
                 value: selectedCurrency,
-                decoration: const InputDecoration(labelText: 'Currency'),
+                labelText: 'Currency',
                 onChanged: (String? newValue) {
                   setState(() {
                     selectedCurrency = newValue ?? currencies.first;
@@ -170,7 +171,7 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                 },
               ),
 
-              ElevatedButton(
+              CustomElevatedButton(
                 onPressed: () async {
                   if (formKey.currentState!.validate()) {
                     Activity updatedActivity = Activity(
@@ -195,7 +196,7 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                     }
                   }
                 },
-                child: Text(widget.isNew ? 'Create' : 'Update'),
+                text: widget.isNew ? 'Create' : 'Update',
               )
             ],
           ),

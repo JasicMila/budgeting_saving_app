@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/account.dart';
 import '../models/category.dart';
 import '../models/activity.dart';
-import '../providers/firestore_service_provider.dart';
+import 'package:budgeting_saving_app/src/providers/providers.dart';
 import '../services/firestore_service.dart';
 import '../utils/default_categories.dart';
 

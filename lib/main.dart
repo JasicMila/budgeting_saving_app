@@ -2,21 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:budgeting_saving_app/src/views/sign_in_page.dart';
-import 'package:budgeting_saving_app/src/views/main_screen.dart';
-import 'package:budgeting_saving_app/src/services/auth_service.dart';
-import 'package:budgeting_saving_app/src/notifiers/account_notifier.dart';
-import 'package:budgeting_saving_app/src/notifiers/activity_notifier.dart';
-import 'package:budgeting_saving_app/src/notifiers/category_notifier.dart';
-import 'package:budgeting_saving_app/src/models/account.dart';
-import 'package:budgeting_saving_app/src/models/activity.dart';
-import 'package:budgeting_saving_app/src/models/category.dart';
+import 'package:budgeting_saving_app/src/auth/auth_wrapper.dart';
+import 'package:logger/logger.dart';
 
-final authServiceProvider = Provider<AuthService>((ref) => AuthService());
-final accountNotifierProvider = StateNotifierProvider<AccountNotifier, List<Account>>((ref) => AccountNotifier(ref));
-final activityNotifierProvider = StateNotifierProvider<ActivityNotifier, List<Activity>>((ref) => ActivityNotifier(ref));
-final categoryNotifierProvider = StateNotifierProvider.family<CategoryNotifier, List<Category>, String>((ref, accountId) => CategoryNotifier(ref, accountId));
+
+final logger = Logger();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +28,7 @@ Future<void> main() async {
       ),
     );
   } catch (e) {
-    print("Firebase initialization error: $e");
+    logger.e("Firebase initialization error", error: e);
   }
 
   runApp(const ProviderScope(child: MyApp()));
@@ -61,30 +51,6 @@ class MyApp extends ConsumerWidget {
         ),
       ),
       home: const AuthWrapper(),
-    );
-  }
-}
-
-class AuthWrapper extends ConsumerWidget {
-  const AuthWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        // Check if the user is signed in
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          // Show loading indicator while waiting for the authentication state
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
-        } else if (snapshot.hasData) {
-          // User is signed in, show home page
-          return const MainScreen();
-        } else {
-          // No user signed in, show sign-in page
-          return const SignInPage();
-        }
-      },
     );
   }
 }

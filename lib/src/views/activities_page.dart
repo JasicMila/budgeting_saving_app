@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/activity.dart';
-import 'package:budgeting_saving_app/src/providers/account_provider.dart';
-import 'package:budgeting_saving_app/src/providers/activity_provider.dart';
+import 'package:budgeting_saving_app/src/providers/providers.dart';
 import '../utils/constants.dart';
 import 'activity_details_page.dart';
 import 'package:intl/intl.dart';
 
 class ActivitiesPage extends ConsumerStatefulWidget {
-  final String accountId;
-  const ActivitiesPage({super.key, required this.accountId});
+  const ActivitiesPage({super.key});
 
   @override
   ActivitiesPageState createState() => ActivitiesPageState();
@@ -77,7 +75,7 @@ class ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                     value: account.id,
                     child: Text(account.name),
                   );
-                }).toList(),
+                }),
               ],
             ),
           ),

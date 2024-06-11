@@ -1,9 +1,8 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/activity.dart';
-import '../providers/firestore_service_provider.dart';
+import 'package:budgeting_saving_app/src/providers/providers.dart';
 import '../services/firestore_service.dart';
-import '../providers/account_provider.dart';
 import '../utils/constants.dart';
 
 class ActivityNotifier extends StateNotifier<List<Activity>> {

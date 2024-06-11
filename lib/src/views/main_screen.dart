@@ -2,49 +2,35 @@ import 'package:budgeting_saving_app/src/views/activities_page.dart';
 import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'accounts_page.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MainScreen extends StatefulWidget {
+
+final selectedIndexProvider = StateProvider<int>((ref) => 0);
+
+class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
 
-  @override
-  MainScreenState createState() => MainScreenState();
-}
-
-class MainScreenState extends State<MainScreen> {
-  int _selectedIndex = 0;
-  String _selectedAccountId = ''; // State variable to hold the selected account ID
-
-
-  final List<Widget> _widgetOptions = <Widget>[
-    const HomePage(),
-    const AccountsPage(),
-    const SizedBox(), // Placeholder for ActivitiesPage
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  // Method to select an account and navigate to ActivitiesPage
-  void selectAccountAndNavigate(String accountId) {
-    setState(() {
-      _selectedAccountId = accountId;
-      _selectedIndex = 2; // Navigate to Activities tab
-    });
-  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedIndex = ref.watch(selectedIndexProvider);
+
+    final List<Widget> widgetOptions = <Widget>[
+      const HomePage(),
+      const AccountsPage(),
+     const ActivitiesPage(),
+    ];
+
+    void onItemTapped(int index) {
+      ref.read(selectedIndexProvider.notifier).state = index;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Budgeting App'),
       ),
       body: Center(
-        child: _selectedIndex == 2
-            ? ActivitiesPage(accountId: _selectedAccountId)
-            : _widgetOptions.elementAt(_selectedIndex),
+        child: widgetOptions.elementAt(selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -61,9 +47,9 @@ class MainScreenState extends State<MainScreen> {
             label: 'Activities',
           ),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: selectedIndex,
         selectedItemColor: Colors.purple[800],
-        onTap: _onItemTapped,
+        onTap: onItemTapped,
       ),
     );
   }
