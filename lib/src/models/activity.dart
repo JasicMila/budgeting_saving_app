@@ -49,4 +49,29 @@ class Activity implements Mappable {
       'creatorId': creatorId,
     };
   }
+
+  // CopyWith method
+  Activity copyWith({
+    String? id,
+    String? accountId,
+    DateTime? date,
+    ActivityType? type,
+    String? category,
+    double? amount,
+    String? currency,
+    String? creatorId,
+  }) {
+    return Activity(
+      id: id ?? this.id,
+      accountId: accountId ?? this.accountId,
+      date: date ?? this.date,
+      type: type ?? this.type,
+      category: category ?? this.category,
+      amount: amount ?? this.amount,
+      currency: currency ?? this.currency,
+      creatorId: creatorId ?? this.creatorId,
+    );
+  }
 }
+
+
