@@ -19,7 +19,10 @@ class CategoryNotifier extends StateNotifier<List<Category>> {
 
   Future<void> fetchCategories() async {
     try {
-      var categories = await _firestoreService.fetchAll();
+      final user = ref.read(authServiceProvider).currentUser;
+      if (user == null) return;
+
+      var categories = await _firestoreService.fetchAll(user.uid);
       state = categories.where((category) => category.accountId == accountId).toList();
     } catch (e) {
       print("Error fetching categories: $e");
@@ -29,7 +32,11 @@ class CategoryNotifier extends StateNotifier<List<Category>> {
   Future<void> addCategory(Category category) async {
     if (FirebaseAuth.instance.currentUser?.uid == category.creatorId) {
       try {
-        await _firestoreService.create(category.toMap(), category.id);
+
+        final user = ref.read(authServiceProvider).currentUser;
+        if (user == null) return;
+
+        await _firestoreService.create(category.toMap(), category.id, user.uid);
         state = [...state, category];
       } catch (e) {
         print("Error adding category: $e");

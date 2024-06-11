@@ -15,7 +15,10 @@ class ActivityNotifier extends StateNotifier<List<Activity>> {
 
   Future<void> fetchActivities([String? accountId]) async {
     try {
-      var activities = await _firestoreService.fetchAll();
+      final user = ref.read(authServiceProvider).currentUser;
+      if (user == null) return;
+
+      var activities = await _firestoreService.fetchAll(user.uid);
       // If accountId is provided, filter activities by that accountId.
       if (accountId != null && accountId.isNotEmpty) {
         activities = activities.where((activity) => activity.accountId == accountId).toList();
@@ -28,8 +31,13 @@ class ActivityNotifier extends StateNotifier<List<Activity>> {
 
   Future<void> addActivity(Activity activity) async {
     try {
-      await _firestoreService.create(activity.toMap(), activity.id);
-      await _updateAccountBalance(activity.accountId, activity.amount, activity.type);
+      final user = ref.read(authServiceProvider).currentUser;
+      if (user == null) return;
+
+      final newActivity = activity.copyWith(creatorId: user.uid);
+
+      await _firestoreService.create(newActivity.toMap(), newActivity.id, user.uid);
+      await _updateAccountBalance(newActivity.accountId, newActivity.amount, activity.type);
       state = [...state, activity];
     } catch (e) {
       print("Error adding activity: $e");

@@ -16,9 +16,9 @@ class FirestoreService<T extends Mappable> {
     return firestore.collection(collectionPath);
   }
 
-  Future<List<T>> fetchAll() async {
+  Future<List<T>> fetchAll(String userId) async {
     try {
-      QuerySnapshot snapshot = await collection.get();
+      QuerySnapshot snapshot = await collection.where('creatorId', isEqualTo: userId).get();
       return snapshot.docs.map((doc) => fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
     } catch (e) {
       _logger.e("Failed to fetch documents: $e");
@@ -27,8 +27,9 @@ class FirestoreService<T extends Mappable> {
   }
 
 
-  Future<void> create(Map<String, dynamic> data, String docId) async {
+  Future<void> create(Map<String, dynamic> data, String docId, String userId) async {
     try {
+      data['creatorId'] = userId;  // Include userId in the data
       await collection.doc(docId).set(data);
     } catch (e) {
       print("Failed to create document: $e");
