@@ -10,6 +10,7 @@ class Activity implements Mappable {
   final double amount;
   final String currency;
   final String creatorId; // ID of the user who created the activity
+  final List<String> userIds;
 
   Activity({
     required this.id,
@@ -20,6 +21,7 @@ class Activity implements Mappable {
     required this.amount,
     required this.currency,
     required this.creatorId,
+    required this.userIds,
   });
 
   // Serialization
@@ -33,6 +35,7 @@ class Activity implements Mappable {
       amount: map['amount'].toDouble(),
       currency: map['currency'],
       creatorId: map['creatorId'],
+      userIds: List<String>.from(map['userIds']),
     );
   }
 
@@ -47,6 +50,7 @@ class Activity implements Mappable {
       'amount': amount,
       'currency': currency,
       'creatorId': creatorId,
+      'userIds': userIds,
     };
   }
 
@@ -60,6 +64,7 @@ class Activity implements Mappable {
     double? amount,
     String? currency,
     String? creatorId,
+    List<String>? userIds,
   }) {
     return Activity(
       id: id ?? this.id,
@@ -70,6 +75,7 @@ class Activity implements Mappable {
       amount: amount ?? this.amount,
       currency: currency ?? this.currency,
       creatorId: creatorId ?? this.creatorId,
+      userIds: userIds ?? this.userIds,
     );
   }
 }

@@ -51,6 +51,7 @@ class AccountNotifier extends StateNotifier<List<Account>> {
           name: category['name'],
           type: category['type'],
           creatorId: newAccount.creatorId,
+          userIds: [user.uid],
         );
         await _categoryService.create(newCategory.toMap(), newCategory.id, user.uid);
       }

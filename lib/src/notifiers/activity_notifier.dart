@@ -25,7 +25,7 @@ class ActivityNotifier extends StateNotifier<List<Activity>> {
       // If accountId is provided, filter activities by that accountId.
       if (accountId != null && accountId.isNotEmpty) {
         activities = activities.where((activity) => activity.accountId == accountId).toList();
-      }else {
+      } else {
         // Fetch all accessible accounts for the user
         var accounts = await ref.read(accountNotifierProvider.notifier).fetchAccounts();
         var userAccountIds = accounts.map((account) => account.id).toList();
@@ -44,7 +44,7 @@ class ActivityNotifier extends StateNotifier<List<Activity>> {
       final user = ref.read(authServiceProvider).currentUser;
       if (user == null) return;
 
-      final newActivity = activity.copyWith(creatorId: user.uid);
+      final newActivity = activity.copyWith(creatorId: user.uid, userIds: [user.uid]);
       await _firestoreService.create(newActivity.toMap(), newActivity.id, user.uid);
       await _updateAccountBalance(newActivity.accountId, newActivity.amount, newActivity.type);
       state = [...state, newActivity];
