@@ -75,26 +75,38 @@ class ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                     value: account.id,
                     child: Text(account.name),
                   );
-                }),
+                }).toList(),
               ],
             ),
           ),
           Expanded(
             child: filteredActivities.isEmpty
-                ? const Center(child: CircularProgressIndicator())
+                ? const Center(child: Text('No activities found'))
                 : ListView.builder(
                     itemCount: filteredActivities.length,
                     itemBuilder: (context, index) {
                       final Activity activity = filteredActivities[index];
+                      // Ensure the activity's account is still valid
+                      final validAccount = accounts
+                          .any((account) => account.id == activity.accountId);
+
+                      if (!validAccount) {
+                        return const ListTile(
+                          title: Text('Invalid activity (account not found)'),
+                        );
+                      }
                       // Format the type and date/time
-                      final type = activity.type == ActivityType.income ? 'Income' : 'Expense';
-                      final formattedDate = DateFormat('yyyy-MM-dd').format(activity.date);
-                      final formattedTime = DateFormat('HH:mm').format(activity.date);
+                      final type = activity.type == ActivityType.income
+                          ? 'Income'
+                          : 'Expense';
+                      final formattedDate =
+                          DateFormat('yyyy-MM-dd').format(activity.date);
+                      final formattedTime =
+                          DateFormat('HH:mm').format(activity.date);
                       return ListTile(
                         title: Text(
                             '${activity.category} ($type) - ${activity.amount} ${activity.currency}'),
-                        subtitle: Text(
-                            '$formattedDate at $formattedTime'),
+                        subtitle: Text('$formattedDate at $formattedTime'),
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(

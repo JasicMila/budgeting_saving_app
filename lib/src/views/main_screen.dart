@@ -1,9 +1,10 @@
 import 'package:budgeting_saving_app/src/views/activities_page.dart';
 import 'package:flutter/material.dart';
+import '../providers/providers.dart';
 import 'home_page.dart';
 import 'accounts_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 final selectedIndexProvider = StateProvider<int>((ref) => 0);
 
@@ -24,6 +25,21 @@ class MainScreen extends ConsumerWidget {
     void onItemTapped(int index) {
       ref.read(selectedIndexProvider.notifier).state = index;
     }
+
+    // Listen to auth state changes
+    ref.listen<AsyncValue<User?>>(
+      authStateChangesProvider,
+          (previous, next) {
+        if (next.value != null) {
+          ref.read(accountNotifierProvider.notifier).fetchAccounts();
+          ref.read(activityNotifierProvider.notifier).fetchActivities();
+        } else {
+          // Handle user signed out logic if needed
+          ref.read(accountNotifierProvider.notifier).clearAccounts();
+          ref.read(activityNotifierProvider.notifier).clearActivities();
+        }
+      },
+    );
 
     return Scaffold(
       appBar: AppBar(

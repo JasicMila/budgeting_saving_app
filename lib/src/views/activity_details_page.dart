@@ -183,6 +183,7 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                       amount: double.parse(amountController.text),
                       currency: selectedCurrency,
                       creatorId: creatorId,
+                      userIds: widget.activity?.userIds ?? [creatorId],
                     );
                     if (widget.isNew) {
                       await ref.read(activityNotifierProvider.notifier).addActivity(updatedActivity);

@@ -17,33 +17,46 @@ class AccountNotifier extends StateNotifier<List<Account>> {
     fetchAccounts();
   }
 
-  Future<void> fetchAccounts() async {
+  Future<List<Account>> fetchAccounts() async {
     try {
-      var accounts = await _firestoreService.fetchAll();
-      state = accounts.cast<Account>();
+      final user = ref.read(authServiceProvider).currentUser;
+      if (user == null) {
+        state = [];
+        return [];
+      }
+
+      var accounts = await _firestoreService.fetchAll(user.uid);
+      state = accounts;
+      return accounts;
     } catch (e) {
       print("Error fetching accounts: $e");
+      return [];
     }
   }
 
   Future<void> addAccount(Account account) async {
     try {
-      print("Adding account: ${account.toMap()}");
-      await _firestoreService.create(account.toMap(), account.id);
+      final user = ref.read(authServiceProvider).currentUser;
+      if (user == null) return;
+
+      final newAccount = account.copyWith(creatorId: user.uid);
+      await _firestoreService.create(newAccount.toMap(), newAccount.id, user.uid);
+
 
       // Initialize default categories
       for (var category in defaultCategories) {
         final newCategory = Category(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
-          accountId: account.id,
+          accountId: newAccount.id,
           name: category['name'],
           type: category['type'],
-          creatorId: account.creatorId,
+          creatorId: newAccount.creatorId,
+          userIds: [user.uid],
         );
-        await _categoryService.create(newCategory.toMap(), newCategory.id);
+        await _categoryService.create(newCategory.toMap(), newCategory.id, user.uid);
       }
 
-      state = [...state, account];
+      state = [...state, newAccount];
     } catch (e) {
       print("Failed to add account: $e");
     }
@@ -51,8 +64,11 @@ class AccountNotifier extends StateNotifier<List<Account>> {
 
   Future<void> removeAccount(String accountId) async {
     try {
+      final user = ref.read(authServiceProvider).currentUser;
+      if (user == null) return;
+
       // Fetch and delete all activities related to the account
-      var activities = await _activityService.fetchAll();
+      var activities = await _activityService.fetchAll(user.uid);
       for (var activity in activities) {
         if (activity.accountId == accountId) {
           await _activityService.delete(activity.id);
@@ -75,6 +91,10 @@ class AccountNotifier extends StateNotifier<List<Account>> {
     } catch (e) {
       print("Error updating account: $e");
     }
+  }
+
+  void clearAccounts() {
+    state = [];
   }
 }
 

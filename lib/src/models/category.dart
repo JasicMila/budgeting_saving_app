@@ -7,6 +7,7 @@ class Category implements Mappable{
   final String type; // "income" or "expense"
   final String iconPath; // Optional: For custom icons
   final String creatorId;  // ID of the user who created the category
+  final List<String> userIds;
 
   Category({
     required this.id,
@@ -15,6 +16,7 @@ class Category implements Mappable{
     required this.type,
     this.iconPath = '',
     required this.creatorId,
+    required this.userIds,
   });
 
   @override
@@ -26,6 +28,7 @@ class Category implements Mappable{
       'type': type,
       'iconPath': iconPath,
       'creatorId': creatorId,
+      'userIds': userIds,
     };
   }
 
@@ -37,6 +40,7 @@ class Category implements Mappable{
       type: map['type'],
       iconPath: map['iconPath'] ?? '',
       creatorId: map['creatorId'],
+      userIds: List<String>.from(map['userIds']),
     );
   }
 }

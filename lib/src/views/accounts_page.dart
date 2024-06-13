@@ -4,13 +4,26 @@ import 'package:budgeting_saving_app/src/providers/providers.dart';
 import 'account_details_page.dart';
 import '../models/account.dart';
 
-class AccountsPage extends ConsumerWidget {
+class AccountsPage extends ConsumerStatefulWidget {
   const AccountsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Watch the list of accounts from the AccountNotifier
-    final List<Account> accounts = ref.watch(accountNotifierProvider);
+  AccountsPageState createState() => AccountsPageState();
+}
+
+class AccountsPageState extends ConsumerState<AccountsPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(accountNotifierProvider.notifier).fetchAccounts();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final accounts = ref.watch(accountNotifierProvider);
+
 
     return Scaffold(
       appBar: AppBar(
