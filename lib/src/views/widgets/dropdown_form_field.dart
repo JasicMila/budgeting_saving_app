@@ -18,12 +18,28 @@ class CustomDropdownFormField<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButtonFormField<T>(
-      value: value,
-      decoration: InputDecoration(labelText: labelText),
-      onChanged: onChanged,
-      items: items,
+    return FormField<T>(
       validator: validator,
+      builder: (FormFieldState<T> state) {
+        return InputDecorator(
+          decoration: InputDecoration(
+            labelText: labelText,
+            errorText: state.hasError ? state.errorText : null,
+          ),
+          isEmpty: value == null,
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<T>(
+              value: value,
+              isDense: true,
+              onChanged: (T? newValue) {
+                onChanged(newValue);
+                state.didChange(newValue);
+              },
+              items: items,
+            ),
+          ),
+        );
+      },
     );
   }
 }

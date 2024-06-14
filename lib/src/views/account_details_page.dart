@@ -47,6 +47,15 @@ class AccountDetailsPage extends ConsumerWidget {
       );
 
       try {
+        // Check for unique account name
+        final isUnique = await ref.read(firestoreAccountServiceProvider).isAccountNameUnique(name);
+        if (!isUnique) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Account name must be unique')),
+          );
+          return;
+        }
+
         if (isNew) {
           await ref.read(accountNotifierProvider.notifier).addAccount(
               newAccount);
@@ -80,12 +89,15 @@ class AccountDetailsPage extends ConsumerWidget {
               CustomTextFormField(
                 controller: balanceController,
                 labelText: 'Initial Balance',
-                keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true),
-                validator: (value) =>
-                value!.isEmpty
-                    ? 'Please enter an amount'
-                    : null,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter an amount';
+                  } else if (double.tryParse(value) == null || double.parse(value) < 0) {
+                    return 'Please enter a valid positive number';
+                  }
+                  return null;
+                },
               ),
               CustomDropdownFormField<String>(
                 value: selectedCurrency,

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/mappable.dart';
 import 'package:logger/logger.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 
 class FirestoreService<T extends Mappable> {
@@ -8,6 +9,7 @@ class FirestoreService<T extends Mappable> {
   final String collectionPath;
   final T Function(Map<String, dynamic>, String) fromMap;
   final Logger _logger = Logger();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
 
   FirestoreService(this.collectionPath, this.fromMap);
@@ -92,6 +94,19 @@ class FirestoreService<T extends Mappable> {
       _logger.e("Failed to batch delete documents: $e");
       throw FirestoreException('Failed to batch delete documents: $e');
     }
+  }
+  // Check if an account name is unique for the current user
+  Future<bool> isAccountNameUnique(String name) async {
+    final user = _auth.currentUser;
+    if (user == null) return false;
+
+    final querySnapshot = await firestore
+        .collection('accounts')
+        .where('creatorId', isEqualTo: user.uid)
+        .where('name', isEqualTo: name)
+        .get();
+
+    return querySnapshot.docs.isEmpty;
   }
 }
 

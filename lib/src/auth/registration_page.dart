@@ -65,7 +65,7 @@ class RegistrationPage extends ConsumerWidget {
                         final defaultAccount = Account(
                           id: DateTime.now().millisecondsSinceEpoch.toString(),
                           name: 'Main',
-                          currency: 'USD',
+                          currency: 'EUR',
                           balance: 0.0,
                           creatorId: user.uid,
                           userIds: [user.uid],

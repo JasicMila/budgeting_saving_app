@@ -23,13 +23,13 @@ class SignInPage extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
+              CustomTextFormField(
                 controller: emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
+                labelText: 'Email',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter an email';
-                  } else if (!value.contains('@')) {
+                  } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
                     return 'Please enter a valid email';
                   }
                   return null;
