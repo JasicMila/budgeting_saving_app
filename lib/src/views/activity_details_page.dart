@@ -1,4 +1,3 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,7 +21,7 @@ class ActivityDetailsPage extends ConsumerStatefulWidget {
     this.activity,
     required this.isNew,
     required this.accountId,
-    });
+  });
 
   @override
   ActivityDetailsPageState createState() => ActivityDetailsPageState();
@@ -41,29 +40,43 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
   @override
   void initState() {
     super.initState();
-    amountController = TextEditingController(text: widget.activity?.amount.toString());
+    amountController =
+        TextEditingController(text: widget.activity?.amount.toString() ?? '');
     categoryController = TextEditingController(text: widget.activity?.category);
     selectedDate = widget.activity?.date ?? DateTime.now();
-    selectedType = widget.activity != null ? ActivityType.values.firstWhere(
-            (e) => e.toString().split('.').last == widget.activity!.type,
-        orElse: () => ActivityType.expense
-    ) : ActivityType.expense; // Default to 'expense'
-    selectedCurrency = widget.activity?.currency ?? 'EUR';  // Default to 'EUR'
+
+    selectedType = widget.activity != null
+        ? ActivityType.values.firstWhere(
+            (e) {
+              return widget.activity!.type.toString() == e.toString();
+            },
+            orElse: () => ActivityType.expense,
+          )
+        : ActivityType.expense; // Default to 'expense'
+    selectedCurrency = widget.activity?.currency ?? 'EUR'; // Default to 'EUR'
     selectedAccountId = widget.activity?.accountId ?? widget.accountId;
     selectedCategory = widget.activity?.category;
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser; // Get the current logged-in user
+    final user =
+        FirebaseAuth.instance.currentUser; // Get the current logged-in user
     final creatorId = user?.uid ?? 'auto'; // Use user ID or 'auto' as fallback
     final accounts = ref.watch(accountNotifierProvider);
     final categories = ref.watch(categoryNotifierProvider(selectedAccountId));
 
     // Filter categories based on selected type
-    final filteredCategories = categories.where((category) =>
-    category.type == selectedType.toString().split('.').last).toList();
+    final filteredCategories = categories
+        .where((category) =>
+            category.type == selectedType.toString().split('.').last)
+        .toList()
+        .map<DropdownMenuItem<String>>((Category category) {
+          return DropdownMenuItem<String>(
+            value: category.name,
+            child: Text(category.name),
+          );
+        });
 
     return Scaffold(
       appBar: AppBar(
@@ -73,9 +86,9 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: formKey, // Connect the GlobalKey
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: ListView(
             children: [
-
               CustomDropdownFormField<String>(
                 value: selectedAccountId.isNotEmpty ? selectedAccountId : null,
                 labelText: 'Account',
@@ -84,15 +97,17 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                     selectedAccountId = newValue!;
                   });
                 },
-                items: accounts.map<DropdownMenuItem<String>>((Account account) {
+                items:
+                    accounts.map<DropdownMenuItem<String>>((Account account) {
                   return DropdownMenuItem<String>(
                     value: account.id,
                     child: Text(account.name),
                   );
                 }).toList(),
-                validator: (value) => value == null ? 'Please select an account' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please select an account'
+                    : null,
               ),
-
               CustomDropdownFormField<ActivityType>(
                 value: selectedType,
                 labelText: 'Type',
@@ -104,18 +119,14 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                 },
                 items: ActivityType.values.map((ActivityType type) {
                   return DropdownMenuItem<ActivityType>(
-                  value: type,
-                  child: Text(type.toString().split('.').last),
+                    value: type,
+                    child: Text(type.toString().split('.').last),
                   );
                 }).toList(),
               ),
-
               CustomDropdownFormField<String>(
-                value: categories.isNotEmpty && selectedCategory != null
-                    ? filteredCategories.firstWhere(
-                        (category) => category.name == selectedCategory,
-                    orElse: () => filteredCategories.first)
-                    .name
+                value: filteredCategories.isNotEmpty && selectedCategory != null
+                    ? selectedCategory
                     : null,
                 labelText: 'Category',
                 onChanged: (String? newValue) {
@@ -124,22 +135,26 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                     selectedCategory = newValue;
                   });
                 },
-                items: filteredCategories.map<DropdownMenuItem<String>>((Category category) {
-                  return DropdownMenuItem<String>(
-                    value: category.name,
-                    child: Text(category.name),
-                  );
-                }).toList(),
-                validator: (value) => value == null ? 'Please select a category' : null,
+                items: filteredCategories.toList(),
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please select a category'
+                    : null,
               ),
-
               CustomTextFormField(
                 controller: amountController,
                 labelText: 'Amount',
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                validator: (value) => value == null || value.isEmpty ? 'Please enter a valid amount' : null,
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter an amount';
+                  } else if (double.tryParse(value) == null ||
+                      double.parse(value) <= 0) {
+                    return 'Please enter a valid positive number';
+                  }
+                  return null;
+                },
               ),
-
               CustomDropdownFormField<String>(
                 value: selectedCurrency,
                 labelText: 'Currency',
@@ -149,10 +164,10 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                   });
                 },
                 items: currencies.map<DropdownMenuItem<String>>((value) {
-                  return DropdownMenuItem<String>(value: value, child: Text(value));
+                  return DropdownMenuItem<String>(
+                      value: value, child: Text(value));
                 }).toList(),
               ),
-
               ListTile(
                 title: Text('Date: ${DateFormat.yMd().format(selectedDate)}'),
                 trailing: const Icon(Icons.calendar_today),
@@ -170,30 +185,35 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                   }
                 },
               ),
-
               CustomElevatedButton(
                 onPressed: () async {
                   if (formKey.currentState!.validate()) {
                     Activity updatedActivity = Activity(
-                      id: widget.activity?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                      id: widget.activity?.id ??
+                          DateTime.now().millisecondsSinceEpoch.toString(),
                       accountId: selectedAccountId,
                       date: selectedDate,
                       type: selectedType,
-                      category: categoryController.text,
+                      category: selectedCategory ?? '',
                       amount: double.parse(amountController.text),
                       currency: selectedCurrency,
                       creatorId: creatorId,
                       userIds: widget.activity?.userIds ?? [creatorId],
                     );
                     if (widget.isNew) {
-                      await ref.read(activityNotifierProvider.notifier).addActivity(updatedActivity);
+                      await ref
+                          .read(activityNotifierProvider.notifier)
+                          .addActivity(updatedActivity);
                     } else {
-                      await ref.read(activityNotifierProvider.notifier).updateActivity(updatedActivity.id, updatedActivity);
+                      await ref
+                          .read(activityNotifierProvider.notifier)
+                          .updateActivity(updatedActivity.id, updatedActivity);
                     }
                     // Check if the widget is still in the tree after the async operation
                     if (mounted) {
                       Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Activity saved successfully')));
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text('Activity saved successfully')));
                     }
                   }
                 },
