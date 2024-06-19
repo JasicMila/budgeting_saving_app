@@ -95,8 +95,8 @@ class FirestoreService<T extends Mappable> {
       throw FirestoreException('Failed to batch delete documents: $e');
     }
   }
-  // Check if an account name is unique for the current user
-  Future<bool> isAccountNameUnique(String name) async {
+  // Check if an account name is unique for the current user, excluding the current account ID
+  Future<bool> isAccountNameUnique(String name, [String? currentAccountId]) async {
     final user = _auth.currentUser;
     if (user == null) return false;
 
@@ -106,7 +106,12 @@ class FirestoreService<T extends Mappable> {
         .where('name', isEqualTo: name)
         .get();
 
-    return querySnapshot.docs.isEmpty;
+    // Exclude the current account ID from the results
+    final docs = querySnapshot.docs.where((doc) => doc.id != currentAccountId).toList();
+
+    print('Checking uniqueness for name: $name, Excluding ID: $currentAccountId');
+    print('Filtered docs length after excluding current account: ${docs.length}');
+    return docs.isEmpty;
   }
 }
 
