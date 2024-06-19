@@ -39,8 +39,8 @@ class AccountNotifier extends StateNotifier<List<Account>> {
       final user = ref.read(authServiceProvider).currentUser;
       if (user == null) return;
 
-      final isUnique = await _firestoreService.isAccountNameUnique(account.name);
-      if (!isUnique) {
+      // Check if account name is unique
+      if (!await _firestoreService.isAccountNameUnique(account.name)) {
         throw Exception('Account name must be unique');
       }
 
@@ -90,12 +90,14 @@ class AccountNotifier extends StateNotifier<List<Account>> {
 
   Future<void> updateAccount(Account updatedAccount) async {
     try {
-      final isUnique = await _firestoreService.isAccountNameUnique(updatedAccount.name);
-      if (!isUnique) {
+      final user = ref.read(authServiceProvider).currentUser;
+      if (user == null) return;
+
+      // Check if account name is unique, excluding the current account ID
+      if (!await _firestoreService.isAccountNameUnique(updatedAccount.name, updatedAccount.id)) {
         throw Exception('Account name must be unique');
       }
 
-      print("Updating account: ${updatedAccount.toMap()}");
       await _firestoreService.update(updatedAccount.id, updatedAccount.toMap());
       state = state.map((account) => account.id == updatedAccount.id ? updatedAccount : account).toList();
     } catch (e) {

@@ -47,21 +47,18 @@ class AccountDetailsPage extends ConsumerWidget {
       );
 
       try {
-        // Check for unique account name
-        final isUnique = await ref.read(firestoreAccountServiceProvider).isAccountNameUnique(name);
-        if (!isUnique) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Account name must be unique')),
-          );
-          return;
-        }
-
         if (isNew) {
-          await ref.read(accountNotifierProvider.notifier).addAccount(
-              newAccount);
+          await ref.read(accountNotifierProvider.notifier).addAccount(newAccount);
         } else {
-          await ref.read(accountNotifierProvider.notifier).updateAccount(
-              newAccount);
+          // Ensure the account name is unique if it's being changed
+          if (account!.name != name) {
+            bool isUnique = await ref.read(firestoreAccountServiceProvider).isAccountNameUnique(name, account!.id);
+            print('Is account name unique? $isUnique');
+            if (!isUnique) {
+              throw Exception('Account name must be unique');
+            }
+          }
+          await ref.read(accountNotifierProvider.notifier).updateAccount(newAccount);
         }
         Navigator.pop(context, 'Account saved successfully');
       } catch (e) {
