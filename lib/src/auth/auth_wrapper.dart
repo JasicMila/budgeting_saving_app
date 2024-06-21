@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../views/main_screen.dart';
 import 'sign_in_page.dart';
 import '../providers/providers.dart';
+import '../views/widgets/gradient_background_scaffold.dart';
 
 class AuthWrapper extends ConsumerWidget {
   const AuthWrapper({super.key});
@@ -14,8 +15,17 @@ class AuthWrapper extends ConsumerWidget {
     final authState = ref.watch(authStateChangesProvider);
 
     return authState.when(
-      data: (User? user) => user != null ? const MainScreen() : const SignInPage(),
-      loading: () => const CircularProgressIndicator(),
+      data: (User? user) => user != null
+          ? const MainScreen()
+          : GradientBackgroundScaffold(
+              appBar: AppBar(
+                title: const Text('Sign In'),
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+              ),
+              body: const SignInPage(),
+            ),
+      loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(child: Text('Error: $err')),
     );
   }

@@ -1,4 +1,5 @@
 
+import 'package:budgeting_saving_app/src/views/widgets/gradient_background_scaffold.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:budgeting_saving_app/src/models/account.dart';
@@ -70,8 +71,12 @@ class AccountDetailsPage extends ConsumerWidget {
       }
     }
 
-    return Scaffold(
-      appBar: AppBar(title: Text(isNew ? 'New Account' : 'Edit Account')),
+    return GradientBackgroundScaffold(
+      appBar: AppBar(
+        title: Text(isNew ? 'New Account' : 'Edit Account'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: Form(
         key: formKey,
         child: Padding(

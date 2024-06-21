@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:budgeting_saving_app/src/auth/auth_wrapper.dart';
 import 'package:logger/logger.dart';
+import 'package:budgeting_saving_app/src/theme/app_theme.dart';
 
 
 final logger = Logger();
@@ -41,15 +42,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       title: 'Budgeting & Savings App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          selectedItemColor: Colors.purple[800],
-          unselectedItemColor: Colors.grey[600],
-          backgroundColor: Colors.white,
-        ),
-      ),
+      theme: AppTheme.lightTheme, // Use the extracted theme
       home: const AuthWrapper(),
     );
   }

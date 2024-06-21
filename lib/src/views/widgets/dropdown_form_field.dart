@@ -24,7 +24,14 @@ class CustomDropdownFormField<T> extends StatelessWidget {
         return InputDecorator(
           decoration: InputDecoration(
             labelText: labelText,
+            labelStyle: Theme.of(context).textTheme.bodyMedium,
             errorText: state.hasError ? state.errorText : null,
+            enabledBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white70),
+            ),
+            focusedBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
           ),
           isEmpty: value == null,
           child: DropdownButtonHideUnderline(
@@ -36,6 +43,9 @@ class CustomDropdownFormField<T> extends StatelessWidget {
                 state.didChange(newValue);
               },
               items: items,
+              dropdownColor: const Color(0xFF1B5E20), // Dark Green background
+              style: const TextStyle(color: Colors.white), // White text color
+              iconEnabledColor: Colors.white, // White icon color
             ),
           ),
         );
