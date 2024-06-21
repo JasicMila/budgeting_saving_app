@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:budgeting_saving_app/src/providers/providers.dart';
 import 'account_details_page.dart';
-import '../models/account.dart';
+import 'widgets/gradient_background_scaffold.dart';
 
 class AccountsPage extends ConsumerStatefulWidget {
   const AccountsPage({super.key});
@@ -25,9 +25,11 @@ class AccountsPageState extends ConsumerState<AccountsPage> {
     final accounts = ref.watch(accountNotifierProvider);
 
 
-    return Scaffold(
+    return GradientBackgroundScaffold(
       appBar: AppBar(
         title: const Text('Your Accounts'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -44,9 +46,10 @@ class AccountsPageState extends ConsumerState<AccountsPage> {
         itemBuilder: (context, index) {
           final account = accounts[index];
           return ListTile(
-            title: Text(account.name),
+            title: Text(account.name, style: Theme.of(context).textTheme.bodyLarge),
             subtitle: Text(
-                '${account.currency} ${account.balance.toStringAsFixed(2)}'),
+                '${account.currency} ${account.balance.toStringAsFixed(2)}',
+                style: Theme.of(context).textTheme.bodyMedium),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -58,15 +61,17 @@ class AccountsPageState extends ConsumerState<AccountsPage> {
               children: [
                 IconButton(
                   icon: const Icon(Icons.edit),
+                  color: Colors.grey[500], // Light grey color
                   onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            AccountDetailsPage(account: account, isNew: false)),
+                        builder: (context) => AccountDetailsPage(
+                            account: account, isNew: false)),
                   ),
                 ),
                 IconButton(
                     icon: const Icon(Icons.delete),
+                    color: Colors.grey[500], // Light grey color
                     onPressed: () async {
                       await ref
                           .read(accountNotifierProvider.notifier)

@@ -1,3 +1,4 @@
+// lib/src/views/main_screen.dart
 import 'package:budgeting_saving_app/src/views/activities_page.dart';
 import 'package:flutter/material.dart';
 import '../providers/providers.dart';
@@ -5,12 +6,12 @@ import 'home_page.dart';
 import 'accounts_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'widgets/gradient_background_scaffold.dart';
 
 final selectedIndexProvider = StateProvider<int>((ref) => 0);
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
-
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,7 +20,7 @@ class MainScreen extends ConsumerWidget {
     final List<Widget> widgetOptions = <Widget>[
       const HomePage(),
       const AccountsPage(),
-     const ActivitiesPage(),
+      const ActivitiesPage(),
     ];
 
     void onItemTapped(int index) {
@@ -29,10 +30,12 @@ class MainScreen extends ConsumerWidget {
     // Listen to auth state changes
     ref.listen<AsyncValue<User?>>(
       authStateChangesProvider,
-          (previous, next) {
+      (previous, next) {
         if (next.value != null) {
           ref.read(accountNotifierProvider.notifier).fetchAccounts();
           ref.read(activityNotifierProvider.notifier).fetchActivities();
+          // Fetch user details when signed in
+          ref.refresh(userProvider);
         } else {
           // Handle user signed out logic if needed
           ref.read(accountNotifierProvider.notifier).clearAccounts();
@@ -41,9 +44,18 @@ class MainScreen extends ConsumerWidget {
       },
     );
 
-    return Scaffold(
+    // Fetch the current user's details
+    final userAsyncValue = ref.watch(userProvider);
+
+    return GradientBackgroundScaffold(
       appBar: AppBar(
-        title: const Text('My Budgeting App'),
+        title: userAsyncValue.when(
+          data: (user) => Text('${user?.displayName ?? 'My'} Budgeting and Savings App'),
+          loading: () => const Text('Loading...'),
+          error: (err, stack) => Text('Error: $err'),
+        ),
+        backgroundColor: Colors.transparent, // Make AppBar background transparent
+        elevation: 0,
       ),
       body: Center(
         child: widgetOptions.elementAt(selectedIndex),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:budgeting_saving_app/src/auth/auth_wrapper.dart';
+import 'widgets/gradient_background_scaffold.dart';
 
 
 class HomePage extends StatelessWidget {
@@ -8,9 +9,11 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GradientBackgroundScaffold(
       appBar: AppBar(
         title: const Text('Home Page'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

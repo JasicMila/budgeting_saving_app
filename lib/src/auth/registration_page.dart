@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:budgeting_saving_app/src/providers/providers.dart';
 import '../views/widgets/elevated_button.dart';
+import '../views/widgets/gradient_background_scaffold.dart';
 import '../views/widgets/text_form_field.dart';
 import '../models/account.dart';
 
@@ -17,7 +18,7 @@ class RegistrationPage extends ConsumerWidget {
     final passwordController = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
-    return Scaffold(
+    return GradientBackgroundScaffold(
       appBar: AppBar(title: const Text('Register')),
       body: Padding(
         padding: const EdgeInsets.all(16),

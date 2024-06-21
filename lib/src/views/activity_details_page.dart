@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'widgets/text_form_field.dart';
 import 'widgets/dropdown_form_field.dart';
 import 'widgets/elevated_button.dart';
+import 'widgets/gradient_background_scaffold.dart';
 
 class ActivityDetailsPage extends ConsumerStatefulWidget {
   final Activity? activity;
@@ -78,9 +79,11 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
           );
         });
 
-    return Scaffold(
+    return GradientBackgroundScaffold(
       appBar: AppBar(
         title: Text(widget.isNew ? 'New Activity' : 'Edit Activity'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
