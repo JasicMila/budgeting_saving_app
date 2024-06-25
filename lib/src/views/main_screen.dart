@@ -1,6 +1,7 @@
 // lib/src/views/main_screen.dart
 import 'package:budgeting_saving_app/src/views/activities_page.dart';
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import '../providers/providers.dart';
 import 'home_page.dart';
 import 'accounts_page.dart';
@@ -27,6 +28,9 @@ class MainScreen extends ConsumerWidget {
       ref.read(selectedIndexProvider.notifier).state = index;
     }
 
+    // Fetch the current user's details
+    final userAsyncValue = ref.watch(userProvider);
+
     // Listen to auth state changes
     ref.listen<AsyncValue<User?>>(
       authStateChangesProvider,
@@ -37,20 +41,22 @@ class MainScreen extends ConsumerWidget {
           // Fetch user details when signed in
           ref.refresh(userProvider);
         } else {
-          // Handle user signed out logic if needed
+          // Handle user signed out logic
           ref.read(accountNotifierProvider.notifier).clearAccounts();
           ref.read(activityNotifierProvider.notifier).clearActivities();
+          // Refresh user provider to clear old user data
+          ref.refresh(userProvider);
         }
       },
     );
 
-    // Fetch the current user's details
-    final userAsyncValue = ref.watch(userProvider);
-
     return GradientBackgroundScaffold(
       appBar: AppBar(
         title: userAsyncValue.when(
-          data: (user) => Text('${user?.displayName ?? 'My'} Budgeting and Savings App'),
+          data: (user) {
+            Logger().i("User display name: ${user?.displayName}");
+            return Text("${user?.displayName ?? 'My'}'s Budget");
+          },
           loading: () => const Text('Loading...'),
           error: (err, stack) => Text('Error: $err'),
         ),
