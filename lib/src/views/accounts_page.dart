@@ -27,7 +27,7 @@ class AccountsPageState extends ConsumerState<AccountsPage> {
 
     return GradientBackgroundScaffold(
       appBar: AppBar(
-        title: const Text('Your Accounts'),
+        title: const Text('Accounts'),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [

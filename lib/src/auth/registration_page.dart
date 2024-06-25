@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:budgeting_saving_app/src/providers/providers.dart';
@@ -7,8 +9,6 @@ import '../views/widgets/text_form_field.dart';
 import '../models/account.dart';
 
 
-
-
 class RegistrationPage extends ConsumerWidget {
   const RegistrationPage({super.key});
 
@@ -16,6 +16,7 @@ class RegistrationPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final emailController = TextEditingController();
     final passwordController = TextEditingController();
+    final displayNameController = TextEditingController();
     final formKey = GlobalKey<FormState>();
 
     return GradientBackgroundScaffold(
@@ -27,6 +28,16 @@ class RegistrationPage extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              CustomTextFormField(
+                controller: displayNameController,
+                labelText: 'Username',
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a username';
+                  }
+                  return null;
+                },
+              ),
               CustomTextFormField(
                 controller: emailController,
                 labelText: 'Email',
@@ -56,13 +67,20 @@ class RegistrationPage extends ConsumerWidget {
                 onPressed: () async {
                   if (formKey.currentState!.validate()) {
                     try {
-                      await ref.read(authServiceProvider).createUser(
+                      final authService = ref.read(authServiceProvider);
+                      await authService.createUser(
                         emailController.text.trim(),
                         passwordController.text.trim(),
                       );
 
-                      final user = ref.read(authServiceProvider).currentUser;
+                      final user = FirebaseAuth.instance.currentUser;
                       if (user != null) {
+                        final displayName = displayNameController.text.trim();
+                        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+                          'displayName': displayName,
+                          'email': user.email,
+                        });
+
                         final defaultAccount = Account(
                           id: DateTime.now().millisecondsSinceEpoch.toString(),
                           name: 'Main',
