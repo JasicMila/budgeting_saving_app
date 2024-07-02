@@ -30,23 +30,26 @@ class MainScreen extends ConsumerWidget {
 
     // Fetch the current user's details
     final userAsyncValue = ref.watch(userProvider);
+    print("User async value state: ${userAsyncValue.toString()}");
 
     // Listen to auth state changes
     ref.listen<AsyncValue<User?>>(
       authStateChangesProvider,
-      (previous, next) {
-        if (next.value != null) {
-          ref.read(accountNotifierProvider.notifier).fetchAccounts();
-          ref.read(activityNotifierProvider.notifier).fetchActivities();
-          // Fetch user details when signed in
-          ref.refresh(userProvider);
-        } else {
-          // Handle user signed out logic
-          ref.read(accountNotifierProvider.notifier).clearAccounts();
-          ref.read(activityNotifierProvider.notifier).clearActivities();
-          // Refresh user provider to clear old user data
-          ref.refresh(userProvider);
-        }
+          (previous, next) {
+        next.whenData((user) {
+          if (user != null) {
+            ref.read(accountNotifierProvider.notifier).fetchAccounts();
+            ref.read(activityNotifierProvider.notifier).fetchActivities();
+            // Refresh user provider to fetch latest user data
+            ref.refresh(userProvider);
+          } else {
+            // Handle user signed out logic
+            ref.read(accountNotifierProvider.notifier).clearAccounts();
+            ref.read(activityNotifierProvider.notifier).clearActivities();
+            // Refresh user provider to clear old user data
+            ref.refresh(userProvider);
+          }
+        });
       },
     );
 
@@ -57,10 +60,17 @@ class MainScreen extends ConsumerWidget {
             Logger().i("User display name: ${user?.displayName}");
             return Text("${user?.displayName ?? 'My'}'s Budget");
           },
-          loading: () => const Text('Loading...'),
-          error: (err, stack) => Text('Error: $err'),
+          loading: () {
+            print("UserProvider is still loading");
+            return const Text('Loading User Data...');
+          },
+          error: (err, stack) {
+            print("Error in UserProvider: $err");
+            print("Stack trace: $stack");
+            return Text('Error: $err');
+          },
         ),
-        backgroundColor: Colors.transparent, // Make AppBar background transparent
+        backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: Center(

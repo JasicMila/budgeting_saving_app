@@ -7,6 +7,7 @@ class Account implements Mappable {
   late final double balance;
   final String creatorId;
   final List<String> userIds; // IDs of users who can access this account
+  final bool isMainAccount;
 
   Account({
     required this.id,
@@ -14,7 +15,8 @@ class Account implements Mappable {
     required this.currency,
     required this.balance,
     required this.creatorId,
-    required this.userIds
+    required this.userIds,
+    this.isMainAccount = false,
   });
 
   Account copyWith({
@@ -24,6 +26,7 @@ class Account implements Mappable {
     double? balance,
     String? creatorId,
     List<String>? userIds,
+    bool? isMainAccount,
   }) {
     return Account(
       id: id ?? this.id,
@@ -32,6 +35,7 @@ class Account implements Mappable {
       balance: balance ?? this.balance,
       creatorId: creatorId ?? this.creatorId,
       userIds: userIds ?? this.userIds,
+      isMainAccount: isMainAccount ?? this.isMainAccount,
     );
   }
 
@@ -39,11 +43,12 @@ class Account implements Mappable {
   factory Account.fromMap(Map<String, dynamic> map, String id) {
     return Account(
       id: id,
-      name: map['name'],
-      currency: map['currency'],
-      balance: map['balance'].toDouble(),
-      creatorId: map['creatorId'],
-      userIds: List<String>.from(map['userIds']),
+      name: map['name'] ?? '',
+      currency: map['currency'] ?? 'EUR',
+      balance: (map['balance'] ?? 0).toDouble(),
+      creatorId: map['creatorId'] ?? '',
+      userIds: List<String>.from(map['userIds'] ?? []),
+      isMainAccount: map['isMainAccount'] ?? false,
     );
   }
 
@@ -56,6 +61,7 @@ class Account implements Mappable {
       'balance': balance,
       'creatorId': creatorId,
       'userIds': userIds,
+      'isMainAccount': isMainAccount,
     };
   }
 }

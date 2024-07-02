@@ -51,6 +51,15 @@ class ActivitiesPageState extends ConsumerState<ActivitiesPage> {
                       isNew: true, accountId: selectedAccountId ?? '')),
             ),
           ),
+          IconButton(
+            icon: const Icon(Icons.currency_exchange),
+            onPressed: () async {
+              await ref.read(activityNotifierProvider.notifier).convertActivityAmounts();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Activity amounts converted')),
+              );
+            },
+          ),
         ],
       ),
       body: Column(

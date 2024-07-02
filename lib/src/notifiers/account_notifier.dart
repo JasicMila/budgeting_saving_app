@@ -4,6 +4,7 @@ import '../models/account.dart';
 import '../models/category.dart';
 import '../models/activity.dart';
 import 'package:budgeting_saving_app/src/providers/providers.dart';
+import '../services/currency_service.dart';
 import '../services/firestore_service.dart';
 import '../utils/default_categories.dart';
 
@@ -28,8 +29,9 @@ class AccountNotifier extends StateNotifier<List<Account>> {
       var accounts = await _firestoreService.fetchAll(user.uid);
       state = accounts;
       return accounts;
-    } catch (e) {
+    } catch (e, stackTrace) {
       print("Error fetching accounts: $e");
+      print("Stack trace: $stackTrace");
       return [];
     }
   }
@@ -53,8 +55,8 @@ class AccountNotifier extends StateNotifier<List<Account>> {
         final newCategory = Category(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           accountId: newAccount.id,
-          name: category['name'],
-          type: category['type'],
+          name: category['name'] ?? '',
+          type: category['type'] ?? '',
           creatorId: newAccount.creatorId,
           userIds: [user.uid],
         );
@@ -62,8 +64,9 @@ class AccountNotifier extends StateNotifier<List<Account>> {
       }
 
       state = [...state, newAccount];
-    } catch (e) {
+    } catch (e, stackTrace) {
       print("Failed to add account: $e");
+      print("Stack trace: $stackTrace");
     }
   }
 
@@ -83,8 +86,9 @@ class AccountNotifier extends StateNotifier<List<Account>> {
       // Delete account
       await _firestoreService.delete(accountId);
       state = state.where((account) => account.id != accountId).toList();
-    } catch (e) {
+    } catch (e, stackTrace) {
       print("Error removing account: $e");
+      print("Stack trace: $stackTrace");
     }
   }
 
@@ -100,8 +104,42 @@ class AccountNotifier extends StateNotifier<List<Account>> {
 
       await _firestoreService.update(updatedAccount.id, updatedAccount.toMap());
       state = state.map((account) => account.id == updatedAccount.id ? updatedAccount : account).toList();
-    } catch (e) {
+    } catch (e, stackTrace) {
       print("Error updating account: $e");
+      print("Stack trace: $stackTrace");
+    }
+  }
+
+  Future<void> setMainAccount(String accountId) async {
+    try {
+      state = state.map((account) => account.copyWith(isMainAccount: account.id == accountId)).toList();
+      await Future.wait(state.map((account) => _firestoreService.update(account.id, account.toMap())));
+    } catch (e, stackTrace) {
+      print("Error setting main account: $e");
+      print("Stack trace: $stackTrace");
+    }
+  }
+
+  String? get mainCurrency => state.firstWhere((account) => account.isMainAccount, orElse: () => state.first).currency;
+
+  Future<void> convertAccountBalances() async {
+    try {
+      final mainCurr = mainCurrency;
+      if (mainCurr == null) return;
+
+      final rates = await CurrencyService.getExchangeRates(mainCurr);
+      state = await Future.wait(state.map((account) async {
+        if (account.currency != mainCurr) {
+          final newBalance = await CurrencyService.convert(account.balance, account.currency, mainCurr);
+          return account.copyWith(balance: newBalance, currency: mainCurr);
+        }
+        return account;
+      }));
+
+      await Future.wait(state.map((account) => _firestoreService.update(account.id, account.toMap())));
+    } catch (e, stackTrace) {
+      print("Error converting account balances: $e");
+      print("Stack trace: $stackTrace");
     }
   }
 

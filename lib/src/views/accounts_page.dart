@@ -39,6 +39,15 @@ class AccountsPageState extends ConsumerState<AccountsPage> {
                   builder: (context) => const AccountDetailsPage(isNew: true)),
             ),
           ),
+          IconButton(
+            icon: const Icon(Icons.currency_exchange),
+            onPressed: () async {
+              await ref.read(accountNotifierProvider.notifier).convertAccountBalances();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Account balances converted')),
+              );
+            },
+          ),
         ],
       ),
       body: ListView.builder(

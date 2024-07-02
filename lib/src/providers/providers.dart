@@ -61,24 +61,23 @@ final categoryNotifierProvider =
 });
 
 // User Provider
-final userProvider = StreamProvider<UserData?>((ref) {
-  return ref.watch(authStateChangesProvider.stream).asyncMap((user) async {
-    if (user != null) {
-      try {
-        final userData = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-        Logger().i("Fetched user data: ${userData.data()}");
-        return UserData(
-          uid: user.uid,
-          email: user.email!,
-          displayName: userData.data()?['displayName'] ?? 'User',
-        );
-      } catch (e) {
-        Logger().e("Failed to fetch user data: $e");
-        return null;
-      }
+final userProvider = FutureProvider<UserData?>((ref) async {
+  final authState = await ref.watch(authStateChangesProvider.future);
+  if (authState != null) {
+    try {
+      final userData = await FirebaseFirestore.instance.collection('users').doc(authState.uid).get();
+      print("Fetched user data: ${userData.data()}");
+      return UserData(
+        uid: authState.uid,
+        email: authState.email!,
+        displayName: userData.data()?['displayName'] ?? 'User',
+      );
+    } catch (e) {
+      print("Failed to fetch user data: $e");
+      return null;
     }
-    return null;
-  });
+  }
+  return null;
 });
 
 class UserData {

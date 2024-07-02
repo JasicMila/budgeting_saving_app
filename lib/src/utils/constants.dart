@@ -1,7 +1,8 @@
 // This file holds application-wide constants
+import 'currencies.dart';
 
 // List of currencies
-const List<String> currencies = ['EUR', 'USD'];
+final List<String> currencies = availableCurrencies.keys.toList();
 
 // List of types of activities
 enum ActivityType {

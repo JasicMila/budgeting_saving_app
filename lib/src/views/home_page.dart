@@ -10,6 +10,8 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userAsyncValue = ref.watch(userProvider);
+
     return GradientBackgroundScaffold(
       appBar: AppBar(
         title: const Text('Home Page'),
@@ -28,8 +30,12 @@ class HomePage extends ConsumerWidget {
           ),
         ],
       ),
-      body: const Center(
-        child: Text('Welcome to the Home Page!'),
+      body: Center(
+        child: userAsyncValue.when(
+          data: (user) => Text('Welcome, ${user?.displayName ?? "User"}!'),
+          loading: () => const CircularProgressIndicator(),
+          error: (_, __) => const Text('Error loading user data'),
+        ),
       ),
     );
   }

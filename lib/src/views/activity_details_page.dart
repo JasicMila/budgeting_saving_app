@@ -7,6 +7,7 @@ import '../models/category.dart';
 import 'package:budgeting_saving_app/src/providers/providers.dart';
 import 'package:budgeting_saving_app/src/utils/constants.dart';
 import 'package:intl/intl.dart';
+import '../services/currency_service.dart';
 import 'widgets/text_form_field.dart';
 import 'widgets/dropdown_form_field.dart';
 import 'widgets/elevated_button.dart';
@@ -45,7 +46,6 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
         TextEditingController(text: widget.activity?.amount.toString() ?? '');
     categoryController = TextEditingController(text: widget.activity?.category);
     selectedDate = widget.activity?.date ?? DateTime.now();
-
     selectedType = widget.activity != null
         ? ActivityType.values.firstWhere(
             (e) {
@@ -66,6 +66,7 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
     final creatorId = user?.uid ?? 'auto'; // Use user ID or 'auto' as fallback
     final accounts = ref.watch(accountNotifierProvider);
     final categories = ref.watch(categoryNotifierProvider(selectedAccountId));
+    final mainCurrency = ref.watch(accountNotifierProvider.notifier).mainCurrency;
 
     // Filter categories based on selected type
     final filteredCategories = categories
@@ -77,7 +78,7 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
             value: category.name,
             child: Text(category.name),
           );
-        });
+    }).toList();
 
     return GradientBackgroundScaffold(
       appBar: AppBar(
@@ -181,13 +182,40 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                     firstDate: DateTime(2000),
                     lastDate: DateTime(2100),
                   );
-                  if (picked != null && picked != selectedDate && mounted) {
+                  if (picked != null && picked != selectedDate) {
                     setState(() {
                       selectedDate = picked;
                     });
                   }
                 },
               ),
+              if (!widget.isNew) ...[
+                const SizedBox(height: 20),
+                Text(
+                  'Original Amount: ${widget.activity?.originalAmount.toStringAsFixed(2)} ${widget.activity?.originalCurrency}',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                FutureBuilder<double>(
+                  future: CurrencyService.convert(
+                    widget.activity?.originalAmount ?? 0,
+                    widget.activity?.originalCurrency ?? mainCurrency ?? 'EUR',
+                    mainCurrency ?? 'EUR',
+                  ),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return Text(
+                        'Converted Amount: ${snapshot.data?.toStringAsFixed(2)} $mainCurrency',
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      );
+                    }
+                  },
+                ),
+              ],
+              const SizedBox(height: 20),
               CustomElevatedButton(
                 onPressed: () async {
                   if (formKey.currentState!.validate()) {
@@ -202,6 +230,8 @@ class ActivityDetailsPageState extends ConsumerState<ActivityDetailsPage> {
                       currency: selectedCurrency,
                       creatorId: creatorId,
                       userIds: widget.activity?.userIds ?? [creatorId],
+                      originalAmount: double.parse(amountController.text),
+                      originalCurrency: selectedCurrency,
                     );
                     if (widget.isNew) {
                       await ref

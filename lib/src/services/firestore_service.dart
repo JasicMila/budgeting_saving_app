@@ -21,7 +21,14 @@ class FirestoreService<T extends Mappable> {
   Future<List<T>> fetchAll(String userId) async {
     try {
       QuerySnapshot snapshot = await collection.where('creatorId', isEqualTo: userId).get();
-      return snapshot.docs.map((doc) => fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
+      return snapshot.docs.map((doc) {
+        try {
+          return fromMap(doc.data() as Map<String, dynamic>, doc.id);
+        } catch (e) {
+          _logger.e("Error parsing document ${doc.id}: $e");
+          return null;
+        }
+      }).whereType<T>().toList();
     } catch (e) {
       _logger.e("Failed to fetch documents: $e");
       throw FirestoreException('Failed to fetch documents');

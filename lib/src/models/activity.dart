@@ -11,6 +11,8 @@ class Activity implements Mappable {
   final String currency;
   final String creatorId; // ID of the user who created the activity
   final List<String> userIds;
+  final double originalAmount;
+  final String originalCurrency;
 
   Activity({
     required this.id,
@@ -22,20 +24,27 @@ class Activity implements Mappable {
     required this.currency,
     required this.creatorId,
     required this.userIds,
+    required this.originalAmount,
+    required this.originalCurrency,
   });
 
   // Serialization
   factory Activity.fromMap(Map<String, dynamic> map, String id) {
     return Activity(
       id: id,
-      accountId: map['accountId'],
-      date: DateTime.parse(map['date']),
-      type: ActivityType.values.firstWhere((e) => e.toString().split('.').last == map['type']),
-      category: map['category'],
-      amount: map['amount'].toDouble(),
-      currency: map['currency'],
-      creatorId: map['creatorId'],
-      userIds: List<String>.from(map['userIds']),
+      accountId: map['accountId'] ?? '',
+      date: DateTime.tryParse(map['date'] ?? '') ?? DateTime.now(),
+      type: ActivityType.values.firstWhere(
+            (e) => e.toString() == 'ActivityType.${map['type'] ?? 'expense'}',
+        orElse: () => ActivityType.expense,
+      ),
+      category: map['category'] ?? '',
+      amount: (map['amount'] ?? 0).toDouble(),
+      currency: map['currency'] ?? 'EUR',
+      creatorId: map['creatorId'] ?? '',
+      userIds: List<String>.from(map['userIds'] ?? []),
+      originalAmount: (map['originalAmount'] ?? 0).toDouble(),
+      originalCurrency: map['originalCurrency'] ?? 'EUR',
     );
   }
 
@@ -51,6 +60,8 @@ class Activity implements Mappable {
       'currency': currency,
       'creatorId': creatorId,
       'userIds': userIds,
+      'originalAmount': originalAmount,
+      'originalCurrency': originalCurrency,
     };
   }
 
@@ -65,6 +76,8 @@ class Activity implements Mappable {
     String? currency,
     String? creatorId,
     List<String>? userIds,
+    double? originalAmount,
+    String? originalCurrency,
   }) {
     return Activity(
       id: id ?? this.id,
@@ -76,6 +89,8 @@ class Activity implements Mappable {
       currency: currency ?? this.currency,
       creatorId: creatorId ?? this.creatorId,
       userIds: userIds ?? this.userIds,
+      originalAmount: originalAmount ?? this.originalAmount,
+      originalCurrency: originalCurrency ?? this.originalCurrency,
     );
   }
 }
