@@ -35,12 +35,12 @@ class Category implements Mappable{
   static Category fromMap(Map<String, dynamic> map, String documentId) {
     return Category(
       id: documentId,
-      accountId: map['accountId'],
-      name: map['name'],
-      type: map['type'],
+      accountId: map['accountId'] ?? '',
+      name: map['name'] ?? '',
+      type: map['type'] ?? '',
       iconPath: map['iconPath'] ?? '',
-      creatorId: map['creatorId'],
-      userIds: List<String>.from(map['userIds']),
+      creatorId: map['creatorId'] ?? '',
+      userIds: List<String>.from(map['userIds'] ?? []),
     );
   }
 }

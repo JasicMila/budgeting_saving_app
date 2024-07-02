@@ -6,12 +6,13 @@ import 'package:budgeting_saving_app/src/models/account.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:budgeting_saving_app/src/providers/providers.dart';
 import '../utils/constants.dart';
+import '../utils/currencies.dart';
 import 'activity_details_page.dart';
 import 'widgets/text_form_field.dart';
 import 'widgets/dropdown_form_field.dart';
 import 'widgets/elevated_button.dart';
 
-class AccountDetailsPage extends ConsumerWidget {
+class AccountDetailsPage extends ConsumerStatefulWidget{
   final Account? account;
   final bool isNew;
 
@@ -22,55 +23,36 @@ class AccountDetailsPage extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final TextEditingController nameController = TextEditingController(
-        text: account?.name ?? '');
-    final TextEditingController balanceController = TextEditingController(
-        text: account?.balance.toString() ?? '');
-    String selectedCurrency = account?.currency ?? 'EUR';
-    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  ConsumerState<AccountDetailsPage> createState() => _AccountDetailsPageState();
+}
 
-    void saveAccount() async {
-      if (!formKey.currentState!.validate()) return;
-      final name = nameController.text.trim();
-      final balance = double.tryParse(balanceController.text) ?? 0.0;
-      final newAccount = Account(
-        id: isNew ? DateTime
-            .now()
-            .millisecondsSinceEpoch
-            .toString() : account!.id,
-        // Ensure ID is non-empty
-        name: name,
-        currency: selectedCurrency,
-        balance: balance,
-        creatorId: FirebaseAuth.instance.currentUser!.uid,
-        userIds: [], // handle user IDs as needed
-      );
+class _AccountDetailsPageState extends ConsumerState<AccountDetailsPage> {
+  late TextEditingController nameController;
+  late TextEditingController balanceController;
+  late String selectedCurrency;
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-      try {
-        if (isNew) {
-          await ref.read(accountNotifierProvider.notifier).addAccount(newAccount);
-        } else {
-          // Ensure the account name is unique if it's being changed
-          if (account!.name != name) {
-            bool isUnique = await ref.read(firestoreAccountServiceProvider).isAccountNameUnique(name, account!.id);
-            print('Is account name unique? $isUnique');
-            if (!isUnique) {
-              throw Exception('Account name must be unique');
-            }
-          }
-          await ref.read(accountNotifierProvider.notifier).updateAccount(newAccount);
-        }
-        Navigator.pop(context, 'Account saved successfully');
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save account: $e')));
-      }
-    }
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: widget.account?.name ?? '');
+    balanceController = TextEditingController(text: widget.account?.balance.toString() ?? '');
+    selectedCurrency = widget.account?.currency ?? availableCurrencies.keys.first;
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    balanceController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
 
     return GradientBackgroundScaffold(
       appBar: AppBar(
-        title: Text(isNew ? 'New Account' : 'Edit Account'),
+        title: Text(widget.isNew ? 'New Account' : 'Edit Account'),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -105,18 +87,22 @@ class AccountDetailsPage extends ConsumerWidget {
                 value: selectedCurrency,
                 labelText: 'Currency',
                 onChanged: (String? newValue) {
-                  selectedCurrency = newValue ?? 'EUR';
+                  setState(() {
+                    selectedCurrency = newValue ?? availableCurrencies.keys.first;
+                  });
                 },
-                items: currencies.map((currency) => DropdownMenuItem(
-                  value: currency,
-                  child: Text(currency),
-                )).toList(),
+                items: availableCurrencies.entries.map<DropdownMenuItem<String>>((entry) {
+                  return DropdownMenuItem<String>(
+                    value: entry.key,
+                    child: Text('${entry.key} - ${entry.value}'),
+                  );
+                }).toList(),
               ),
               CustomElevatedButton(
                 onPressed: saveAccount,
-                text: isNew ? 'Create' : 'Update',
+                text: widget.isNew ? 'Create' : 'Update',
               ),
-              if (!isNew) ...[
+              if (!widget.isNew) ...[
                 CustomElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -125,7 +111,7 @@ class AccountDetailsPage extends ConsumerWidget {
                         builder: (context) => ActivityDetailsPage(
                           activity: null, // Assuming it's a new activity
                           isNew: true, // Set to true since it's a new activity
-                          accountId: account!.id,
+                          accountId: widget.account!.id,
                         ),
                       ),
                     );
@@ -138,5 +124,38 @@ class AccountDetailsPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  void saveAccount() async {
+    if (!formKey.currentState!.validate()) return;
+    final name = nameController.text.trim();
+    final balance = double.tryParse(balanceController.text) ?? 0.0;
+    final newAccount = Account(
+      id: widget.isNew ? DateTime.now().millisecondsSinceEpoch.toString() : widget.account!.id,
+      name: name,
+      currency: selectedCurrency,
+      balance: balance,
+      creatorId: FirebaseAuth.instance.currentUser!.uid,
+      userIds: [], // handle user IDs as needed
+    );
+
+    try {
+      if (widget.isNew) {
+        await ref.read(accountNotifierProvider.notifier).addAccount(newAccount);
+      } else {
+        if (widget.account!.name != name) {
+          bool isUnique = await ref.read(firestoreAccountServiceProvider).isAccountNameUnique(name, widget.account!.id);
+          print('Is account name unique? $isUnique');
+          if (!isUnique) {
+            throw Exception('Account name must be unique');
+          }
+        }
+        await ref.read(accountNotifierProvider.notifier).updateAccount(newAccount);
+      }
+      Navigator.pop(context, 'Account saved successfully');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save account: $e')));
+    }
   }
 }
